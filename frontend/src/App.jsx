@@ -9,6 +9,7 @@ import HomePage from './page/HomePage';
 import RegisterPage from './page/RegisterPage';
 import LoginPage from './page/LoginPage';
 import BaseLayout from './components/layout/BaseLayout';
+import CreateCourseForm from './page/CreateCoursePage';
 
 function App() {
 
@@ -20,6 +21,7 @@ function App() {
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/" element={<HomePage  />} />
             <Route path="/login" element={<LoginPage />} />
+            <Route path="/create" element={<CreateCourseForm />} />
             {/* Bạn có thể thêm các route khác ở đây */}
           </Routes>
         </BaseLayout>

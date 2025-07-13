@@ -10,40 +10,22 @@ const { Header, Content, Footer } = Layout;
 const BaseLayout = ({ children }) => {
   return (
     <Layout style={{ minHeight: "100vh" }}>
-      {/* Header full width */}
-      {/* <Header
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          background: "#001529",
-          padding: "0 24px",
-        }}
-      >
-        <div style={{ color: "#fff", fontSize: 20, fontWeight: "bold" }}>
-          🎓 CourseOnline
-        </div>
-        <Menu
-          theme="dark"
-          mode="horizontal"
-          defaultSelectedKeys={["home"]}
-          style={{ flex: 1, justifyContent: "flex-end", background: "transparent" }}
-        >
-          <Menu.Item key="home">
-            <Link to="/">Trang chủ</Link>
-          </Menu.Item>
-          <Menu.Item key="register">
-            <Link to="/register">Đăng ký</Link>
-          </Menu.Item>
-          <Menu.Item key="login">
-            <Link to="/login">Đăng nhập</Link>
-          </Menu.Item>
-        </Menu>
-      </Header> */}
+      
       <HeaderLayout/>
       {/* Nội dung chiếm toàn bộ chiều ngang */}
-      <Content style={{ padding: "24px", background: "#f0f2f5" }}>
-        <div
+      <Content style={{ background: "#f0f2f5" }}>
+        <div className="min-h-screen w-full bg-[#fefcff] relative">
+  {/* Dreamy Sky Pink Glow */}
+  <div
+    className="absolute inset-0 z-0"
+    style={{
+      backgroundImage: `
+        radial-gradient(circle at 30% 70%, rgba(173, 216, 230, 0.35), transparent 60%),
+        radial-gradient(circle at 70% 30%, rgba(255, 182, 193, 0.4), transparent 60%)`,
+    }}
+  />
+    {/* Your Content/Components */}
+    <div
           style={{
             width: "100%",
             background: "#fff",
@@ -53,13 +35,17 @@ const BaseLayout = ({ children }) => {
             minHeight: "calc(100vh - 134px)",
           }}
         >
-          {children}
+          <div className="shadow-2xl rounded-b-2xl px-10 pb-10">
+
+            {children}
+          </div>
         </div>
+</div>
+
+
+        
       </Content>
 
-      {/* <Footer style={{ textAlign: "center" }}>
-        CourseOnline ©{new Date().getFullYear()} | Built by Võ Văn Huy
-      </Footer> */}
       <FooterLayout/>
     </Layout>
   );

@@ -20,25 +20,29 @@ const RegisterPage = () => {
   const {loading,fetchApi} = useFetchApi()
 
   const onFinish = async (values) => {
-  const response = await fetchApi({
-    method: "POST",
-    url: endpoints["register"],
-    data: values,
-  });
+    console.log("DATA FORM GỬI:", values);
+    const response = await fetchApi({
+      method: "POST",
+      url: endpoints["register"],
+      data: values,
+    });
 
-  if (response.status === 201) {
-    message.success("Đăng ký thành công!");
-    form.resetFields();
-  } else {
-    message.error(response.error?.msg || "Đăng ký thất bại");
-  }
+    if (response.status === 201) {
+      message.success("Đăng ký thành công!");
+      form.resetFields();
+    } else {
+      setErr(response.data.msg)
+      message.error(response.error?.msg || "Đăng ký thất bại");
+    }
 };
 
   const userFields = [
     { label: "Tên đăng nhập", name: "username", rules: [{ required: true }], type: "input" },
   { label: "Mật khẩu", name: "password", rules: [{ required: true }], type: "password" },
-  { label: "Họ và tên lót", name: "first_name", rules: [{ required: true }], type: "first_name" },
-  { label: "Tên", name: "last_name", rules: [{ required: true }], type: "last_name" },
+  { label: "Họ và tên lót", name: "first_name", rules: [{ required: true }], type: "input" },
+  { label: "Tên", name: "last_name", rules: [{ required: true }], type: "input" },
+  { label: "Số điện thoại", name: "phonenumber", rules: [{ required: true }], type: "input" },
+  
   ]
   const studentFields = [
   { label: "Mã sinh viên", name: "student_code", rules: [{ required: true }], type: "input" },
@@ -51,24 +55,13 @@ const RegisterPage = () => {
       { label: "Khác", value: "orther" }
     ]
   }
+  
 ];
 const teacherFields = [
-  { label: "Mã sinh viên", name: "student_code", rules: [{ required: true }], type: "input" },
-  { label: "Trường đại học", name: "university", rules: [{ required: true }], type: "input" },
   { label: "Nơi công tác", name:"current_workplace", rules:[{ required: true, message: "Vui lòng nhập nơi công tác" }],type: "input"},
   {label:"Học vị",name:"degree",rules:[{ required: true, message: "Vui lòng nhập học vị" }],type: "input"},
-  {
-    label: "Giới tính", name: "gender", rules: [{ required: true }], type: "select",
-    options: [
-      { label: "Nam", value: "male" },
-      { label: "Nữ", value: "female" },
-      { label: "Khác", value: "orther" }
-    ]
-  }
+  
 ];
-
-
-
 
   return (
     <div
@@ -103,6 +96,7 @@ const teacherFields = [
             label="Vai trò"
             name="role"
             rules={[{ required: true }]}
+            key={role}
           >
             <Select onChange={(value) => setRole(value)}>
               <Option value="student">Học viên</Option>
