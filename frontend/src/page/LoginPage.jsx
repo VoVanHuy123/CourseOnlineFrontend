@@ -36,7 +36,10 @@ const LoginPage = () => {
     login(user, access_token); //gọi context login
     message.success("Đăng nhập thành công!");
     form.resetFields();
-    navigate("/");//
+    setTimeout(() => {
+    navigate("/"); // điều hướng sau 100ms để context cập nhật
+  }, 100);
+    // navigate("/");//
   } else {
     message.error(response.error?.msg || "Đăng ký thất bại");
   }
@@ -64,7 +67,7 @@ const LoginPage = () => {
       }}
     >
       <div
-      
+        className="flex flex-col justify-items-center"
         style={{
            width: "100%",
           maxWidth: 600,
@@ -78,12 +81,15 @@ const LoginPage = () => {
         <h2 style={{ textAlign: "center", marginBottom: 24, color:"black" }}>
           Đăng ký tài khoản
         </h2>
-        <Form layout="vertical" form={form} onFinish={onFinish}>
+        <Form
+        className="flex flex-col justify-center"
+         layout="vertical" form={form} onFinish={onFinish}>
           
           {renderDynamicFormItems(loginFields)}
-
-          <Form.Item>
-            <Button htmlType="submit" type="primary">{loading? "Đang đăng nhập ..." : "Đăng nhập"}</Button>
+          <Form.Item style={{ textAlign: "center" }}>
+            <Button htmlType="submit" type="primary">
+              {loading ? "Đang đăng nhập ..." : "Đăng nhập"}
+            </Button>
           </Form.Item>
         </Form>
       </div>

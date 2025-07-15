@@ -49,11 +49,11 @@ const renderDynamicFormItems = (fields) => {
           <Upload
             name="file"
             listType="picture"
-            beforeUpload={() => false} // để không upload ngay
+            beforeUpload={() => false}
             maxCount={1}
           >
-            <button type="button" className="ant-btn text-white ">
-              <UploadOutlined  /> Chọn ảnh
+            <button type="button" className="ant-btn text-white">
+              <UploadOutlined /> Chọn ảnh
             </button>
           </Upload>
         );
@@ -72,7 +72,9 @@ const renderDynamicFormItems = (fields) => {
         key={field.name}
         label={field.label}
         name={field.name}
-        valuePropName={field.type === "switch" ? "checked" : "value"}
+        // valuePropName={field.type === "switch" ? "checked" : "value"}
+        valuePropName={field.type === "switch" ? "checked" : field.type === "upload" ? "fileList" : "value"}
+        getValueFromEvent={field.type === "upload" ? (e) => e && e.fileList : undefined}
         rules={field.rules}
       >
         {inputComponent}

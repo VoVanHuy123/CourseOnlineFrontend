@@ -1,56 +1,65 @@
 // src/contexts/AuthContext.js
 import React, { createContext, useState, useEffect } from "react";
 
-// Tạo context
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [auth, setAuth] = useState({
-    user: null,
-    token: null,
-    isAuthenticated: false,
-  });
+  const [user, setUser] = useState(null);
+  const [token, setToken] = useState(null);
+  const [loading, setLoading] = useState(true);  // ✅ NEW
 
-  // Load thông tin từ localStorage khi mở trang
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     const storedToken = localStorage.getItem("token");
 
     if (storedUser && storedToken) {
-      setAuth({
-        user: JSON.parse(storedUser),
-        token: storedToken,
-        isAuthenticated: true,
-      });
+      setUser(JSON.parse(storedUser));
+      setToken(storedToken);
     }
+
+    setLoading(false); // ✅ kết thúc khởi tạo context
   }, []);
 
-  // Hàm đăng nhập
-  const login = (userData, token) => {
+  const login = (userData, accessToken) => {
+    setUser(userData);
+    setToken(accessToken);
     localStorage.setItem("user", JSON.stringify(userData));
-    localStorage.setItem("token", token);
+    localStorage.setItem("token", accessToken);
+  };
 
-    setAuth({
-      user: userData,
-      token,
-      isAuthenticated: true,
+  const logout = () => {
+    setUser(null);
+    setToken(null);
+    localStorage.removeItem("user");
+    localStorage.removeItem("token");
+  };
+
+  const updateUser = (patch) => {
+    setUser(prev => {
+      const next = { ...prev, ...patch };
+      localStorage.setItem("user", JSON.stringify(next));
+      return next;
     });
   };
 
-  // Hàm đăng xuất
-  const logout = () => {
-    localStorage.removeItem("user");
-    localStorage.removeItem("token");
-
-    setAuth({
-      user: null,
-      token: null,
-      isAuthenticated: false,
-    });
+  const updateToken = (newToken) => {
+    setToken(newToken);
+    localStorage.setItem("token", newToken);
   };
 
   return (
-    <AuthContext.Provider value={{ auth, login, logout }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        token,
+        loading,              // ✅ cung cấp trạng thái loading
+        isAuthenticated: !!token,
+        login,
+        logout,
+        updateUser,
+        updateToken,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

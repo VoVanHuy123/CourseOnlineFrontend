@@ -3,7 +3,11 @@ import axios from "axios"
 export const BASE_URL = "http://127.0.0.1:5000/"
 export const endpoints = {
     "login":"/auth/login",
-    "register":"/auth/register"
+    "register":"/auth/register",
+    "categories":"/courses/categories",
+    "courses":"/courses",
+    "course-chapters":(id)=>`/courses/${id}/chapters`,
+    "chapters":`/courses/chapters`
 }
 // export const authApis = (token) => {
 //     return axios.create({

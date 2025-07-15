@@ -7,7 +7,7 @@ const { Header } = Layout;
 
 const HeaderLayout = () => {
     const navigate = useNavigate();
-    const { auth, logout } = useContext(AuthContext);
+    const { user, logout,isAuthenticated } = useContext(AuthContext);
 
   const handleClick = ({ key }) => {
     if (key === "logout") {
@@ -18,7 +18,7 @@ const HeaderLayout = () => {
     }
   };
 
-  const nav = auth?.isAuthenticated
+  const nav = isAuthenticated
     ? [
         { label: "Trang chủ", key: "/" },
         { label: "Đăng xuất", key: "logout" },
