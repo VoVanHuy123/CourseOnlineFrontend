@@ -6,7 +6,8 @@ import { UploadOutlined } from "@ant-design/icons";
 const { TextArea } = Input;
 const { Option } = Select;
 
-const renderDynamicFormItems = (fields) => {
+const renderDynamicFormItems = (fields, options = {}) => {
+  const { onUploadChange } = options;
   return fields.map((field) => {
     let inputComponent = <Input />;
 
@@ -51,6 +52,8 @@ const renderDynamicFormItems = (fields) => {
             listType="picture"
             beforeUpload={() => false}
             maxCount={1}
+            //  onChange={ onUploadChange}
+            //  onChange={field.onChange || onUploadChange}
           >
             <button type="button" className="ant-btn text-white">
               <UploadOutlined /> Chọn ảnh
@@ -60,7 +63,7 @@ const renderDynamicFormItems = (fields) => {
         break;
 
       case "switch":
-        inputComponent = <Switch defaultChecked />;
+        inputComponent = <Switch defaultChecked = {field.initialValue} />;
         break;
 
       default:
@@ -73,6 +76,7 @@ const renderDynamicFormItems = (fields) => {
         label={field.label}
         name={field.name}
         // valuePropName={field.type === "switch" ? "checked" : "value"}
+        initialValue={field.initialValue}
         valuePropName={field.type === "switch" ? "checked" : field.type === "upload" ? "fileList" : "value"}
         getValueFromEvent={field.type === "upload" ? (e) => e && e.fileList : undefined}
         rules={field.rules}

@@ -8,7 +8,7 @@ const PrivateRoute = ({ children, allowedRoles }) => {
   if (loading) {
   return <div>Loading...</div>; // hoặc spinner đẹp hơn
 }
-  // console.log(auth.user.role)
+  console.log(isAuthenticated)
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }

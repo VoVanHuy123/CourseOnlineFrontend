@@ -18,6 +18,8 @@ const useFetchApi = () => {
     // Nếu là FormData thì KHÔNG gán Content‑Type
     if (!(data instanceof FormData)) {
       headers["Content-Type"] = "application/json";
+    }else{
+      headers["Content-Type"] = "multipart/form-data";
     }
 
     let response = {

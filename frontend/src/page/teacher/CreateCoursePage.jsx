@@ -12,6 +12,7 @@ const fields1 = [
   { name: "description", label: "Mô tả", type: "text", rules: [{ required: true, message: "Vui lòng mô tả khóa học" }], placeholder: "Mô tả nội dung khóa học" },
   { name: "image", label: "Ảnh đại diện", type: "upload" },
   { name: "price", label: "Giá (VNĐ)", type: "float", placeholder: "Nhập giá...", rules: [{ required: true, message: "Vui lòng nhập Giá khóa học" }] },
+  { name: "is_sequential", label: "Có học theo tuần tự không", type: "switch", placeholder: "Tuẩn tự ?", rules: [{ required: true }] },
 ];
 
 const CreateCourseForm = () => {
