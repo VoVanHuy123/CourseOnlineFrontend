@@ -19,6 +19,7 @@ const HeaderLayout = () => {
   };
 
   const nav = isAuthenticated
+  // console.log(isAuthenticated)
     ? [
         { label: "Trang chủ", key: "/" },
         { label: "Đăng xuất", key: "logout" },

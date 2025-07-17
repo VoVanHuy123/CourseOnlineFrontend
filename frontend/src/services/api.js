@@ -7,7 +7,13 @@ export const endpoints = {
     "categories":"/courses/categories",
     "courses":"/courses",
     "course-chapters":(id)=>`/courses/${id}/chapters`,
-    "chapters":`/courses/chapters`
+    "course_teacher_not_public":(id)=>`/courses/teacher/${id}/not-public`,
+    "course_teacher_public":(id)=>`/courses/teacher/${id}/public`,
+    "chapters":`/courses/chapters`,
+    "refresh":`/auth/refresh`,
+    'lessons':`/courses/lessons`,
+    "update_chapter":(id)=>`/courses/chapters/${id}`,
+    "update_lesson":(id)=>`/courses/lessons/${id}`
 }
 // export const authApis = (token) => {
 //     return axios.create({

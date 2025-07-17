@@ -14,13 +14,19 @@ import { endpoints } from "../services/api";
 const { Option } = Select;
 
 const RegisterPage = () => {
+  const [messageApi, contextHolder] = message.useMessage();
   const [form] = Form.useForm();
   // const [loading, setLoading] = useState(false);
   const [role, setRole] = useState("student");
   const {loading,fetchApi} = useFetchApi()
 
   const onFinish = async (values) => {
-    console.log("DATA FORM GỬI:", values);
+    messageApi.open({
+      key:"register",
+      type:"loading",
+      content:"Đang gửi yêu cầu",
+      duration:5
+    })
     const response = await fetchApi({
       method: "POST",
       url: endpoints["register"],
@@ -29,10 +35,22 @@ const RegisterPage = () => {
 
     if (response.status === 201) {
       message.success("Đăng ký thành công!");
+      messageApi.open({
+        key:"register",
+        type:"success",
+        content:"Gửi yêu cầu thành công",
+        duration:5
+      })
       form.resetFields();
     } else {
       setErr(response.data.msg)
       message.error(response.error?.msg || "Đăng ký thất bại");
+      messageApi.open({
+        key:"register",
+        type:"error",
+        content:"Gửi yêu cầu thất bại",
+        duration:5
+      })
     }
 };
 
@@ -105,7 +123,7 @@ const teacherFields = [
           </Form.Item>
           {renderDynamicFormItems(userFields)}
           {renderDynamicFormItems(role === 'student' ? studentFields : teacherFields)}
-
+          {role !== 'student'?<p className="pb-8">Người dùng giáo viên phải đợi admin xác thực</p>:<></>}
           <Form.Item>
             <Button htmlType="submit" type="primary">{loading? "Đang đăng kí ..." : "Đăng ký"}</Button>
           </Form.Item>
