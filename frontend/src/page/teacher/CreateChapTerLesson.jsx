@@ -5,6 +5,10 @@ import useFetchApi from "../../hooks/useFetchApi";
 import TextArea from "antd/es/input/TextArea";
 import { endpoints } from "../../services/api";
 import renderDynamicFormItems from "../../components/form/DynamicFormItems";
+import CreateChapterForm from "../../components/form/CreateChapterForm";
+import CreateLessonForm from "../../components/form/CreateLessonForm";
+import UpdateChapterForm from "../../components/form/UpdateChapterForm";
+import UpdateLessonForm from "../../components/form/UpdateLessonForm";
 // import useFetchApi from "../hooks/useFetchApi";
 
 const { Panel } = Collapse;
@@ -16,13 +20,16 @@ const CreateChapTerLesson = () => {
   const [course, setCourse] = useState(null);
   const [chapters, setChapters] = useState([]);
   const [selectedChapterId, setSelectedChapterId] = useState(-1)
+  const [selectedChapter, setSelectedChapter] = useState(null)
   const [selectedLesson, setSelectedLesson] = useState(null);
   const [loading, setLoading] = useState(true);
   const [messageApi, contextHolder] = message.useMessage();
   const [isCreateChapter, setIsCreateChapter] = useState(true);
+  const [action, setAction] = useState("create-chapter");
   const [file, setFile] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [form] = Form.useForm();
+  const [errorMsg, setErrorMsg] = useState("");
   const loadCourse = async () => {
     try {
       const res = await fetchApi({
@@ -74,16 +81,19 @@ const CreateChapTerLesson = () => {
       });
       // ✅ Reset form
       form.resetFields();
+      setErrorMsg("");
       setChapters([
         ...chapters,
         {
           id: res.data.id,
           order: res.data.order,
+          description: res.data.description,
           title: res.data.title,
           lessons: []
         }
       ])
     }else{
+      setErrorMsg(res.error)
       messageApi.open({
           key: "createChapter",
           type: "error",
@@ -92,103 +102,53 @@ const CreateChapTerLesson = () => {
         });
     }
   }
-  const chapterFields = [
-    { name: "title", label: "Tên chương", rules: [{ required: true, message: "Vui lòng nhập tên chương" }], type: "input", placeholder: "VD: Chương 1: ..." },
-    { name: "description", label: "Mô tả", type: "text", rules: [{ required: true, message: "Vui lòng mô tả chương" }], placeholder: "Mô tả nội dung chương" },
-    { name: "order", label: "Thứ tự chương", type: "number", rules: [{ required: true, message: "Vui lòng điền thứ tự chương" }] },
-  ]
-  const CreateChapterForm = () => {
-    return (
-      <>
-        <h3 className="text-lg font-bold mb-4">Tạo chương mới</h3>
-        <Form layout="vertical" form={form} onFinish={createChapter}>
-          {renderDynamicFormItems(chapterFields)}
-          <Button type="primary" htmlType="submit">Tạo chương</Button>
-        </Form>
-      </>
-    );
-  };
-  // Lesson ============================================
-  // const handleUploadChange = (info) => {
-  //   // const selectedFile = info.file.originFileObj;
-  //   const fileList = values.content_url;
-  //   const selectedFile = fileList && fileList.length > 0 ? fileList[0].originFileObj : null;
-  //   setFile(selectedFile);
-  // };
-  const lessonFields = [
-  {
-    name: "title",
-    label: "Tiêu đề bài học",
-    type: "input",
-    placeholder: "VD: Giới thiệu React",
-    rules: [{ required: true, message: "Vui lòng nhập tiêu đề bài học" }],
-  },
-  {
-    name: "description",
-    label: "Mô tả",
-    type: "textarea",
-    placeholder: "VD: Bài học giới thiệu về React và các thành phần cơ bản...",
-    rules: [{ required: true, message: "Vui lòng nhập mô tả bài học" }],
-  },
-  {
-    name: "type",
-    label: "Loại bài học",
-    type: "select",
-    rules: [{ required: true, message: "Vui lòng chọn loại bài học" }],
-    options: [
-      { label: "Video", value: "video" },
-      { label: "Tệp tài liệu (PDF, Word...)", value: "file" },
-      { label: "Văn bản", value: "text" }
-    ],
-  },
-  {
-    name: "order",
-    label: "Thứ tự",
-    type: "number",
-    placeholder: "VD: 1",
-    rules: [],
-  },
-  {
-    name: "is_published",
-    label: "Công khai bài học",
-    type: "switch",
-    initialValue: true,
-    rules: [],
-  },
-  {
-    name: "content_url",
-    label: "Tải lên file hoặc video",
-    type: "upload", // Phần xử lý upload riêng (custom render)
-    rules: [{ required: false }],
-    // onChange: handleUploadChange
-  },
-];
+  const updateChapter = async (values) => {
+    messageApi.open({
+              key: "updateChapter",
+              type: "loading",
+              content: "Đang cập nhật...",
+            })
+    const res = await fetchApi({
+      method: "PATCH",
+      url: endpoints['update_chapter'](selectedChapterId),
+      data: { ...values, course_id: id },
+    });
+    if (res.status === 200 || res.status===204) {
+      message.success("cập nhật thành công");
 
-  
-  const CreateLessonForm = () => {
-    return (
-      <>
-        <h3 className="text-lg font-bold mb-4">Tạo bài học mới</h3>
-        <Form layout="vertical" form={form} onFinish={createLesson}>
-          {renderDynamicFormItems(lessonFields)}
-          <Button type="primary" htmlType="submit">Tạo bài học</Button>
-        </Form>
-      </>
-    );
-  };
+      messageApi.open({
+        key: "updateChapter",
+        type: "success",
+        content: "Cập nhật thành công!",
+        duration: 3,
+      });
+      // ✅ Reset form
+      LoadChapters();
+      setSelectedChapter(null)
+      setErrorMsg("");
+      setAction("create-chapter")
+    }else{
+      setErrorMsg(res.error)
+      messageApi.open({
+          key: "updateChapter",
+          type: "error",
+          content: res.error,
+          duration: 5,
+        });
+    }
+  }
   const createLesson = async (values) => {
-    console.log("vào")
-    console.log(values)
 
     const fileList = values.content_url;
     const selectedFile = fileList && fileList.length > 0 ? fileList[0].originFileObj : null;
     
     if (!selectedFile && values.type !== "text") {
     // if (!file && values.type !== "text") {
-      message.error("Vui lòng chọn file/video phù hợp");
+      const msg = "Vui lòng chọn file/video phù hợp"
+      message.error(msg);
+      setErrorMsg(msg);
       return;
     }
-    console.log("vào 1")
     const formData = new FormData();
     for (const key in values) {
       if (key === "content_url") continue;
@@ -205,6 +165,7 @@ const CreateChapTerLesson = () => {
               key: "createLesson",
               type: "loading",
               content: "Đang tạo bài học...",
+              duration: 10
             })
       console.log("=== FormData đang gửi ===");
       for (let [key, value] of formData.entries()) {
@@ -228,24 +189,165 @@ const CreateChapTerLesson = () => {
             })
         console.log("tạo thành công")
         message.success("✅ Tạo bài học thành công!");
+        const newLessonData = {
+          id: res.data.id,
+          title: res.data.title,
+          content_url: res.data.content_url,
+          order: res.data.order,
+          description: res.data.description,
+          chapter_id : res.data.chapter_id,
+          is_published : res.data.is_published,
+          type : res.data.type
+        };
+
+        const newChapters = chapters.map((chapter) => {
+          if (chapter.id === selectedChapterId) {
+            return {
+              ...chapter,
+              lessons: [...(chapter.lessons || []), newLessonData],
+            };
+          }
+          return chapter;
+        });
+
+        setChapters(newChapters);
         form.resetFields();
+        // const newChapters = updatedChapters();
+        // setChapters(newChapters)
         setFile(null);
+        setErrorMsg("");
       }else{
-        console.log(":tạo thất bại")
+        const err = res.error || "Tạo bài học thất bại";
+        // console.log(":tạo thất bại")
         messageApi.open({
               key: "createLesson",
               type: "error",
               content: res.error,
               duration:3
             })
+        setErrorMsg(err);
       }
     } catch (err) {
       console.error(err);
       message.error("❌ Lỗi khi tạo bài học!");
     } finally {
       setUploading(false);
+      form.resetFields();
     }
   };
+  const updateLesson = async (values) => {
+
+    const fileList = values.content_url;
+    const selectedFile = fileList && fileList.length > 0 ? fileList[0].originFileObj : null;
+    console.log(values.type)
+    console.log("file List : ", fileList)
+    console.log("selected File : ", selectedFile)
+    if (!selectedFile && values.type !== "text") {
+    // if (!file && values.type !== "text") {
+      const msg = "Vui lòng chọn file/video phù hợp vì loại bài học của bạn là text"
+      message.error(msg);
+      setErrorMsg(msg);
+      return;
+    }
+    const formData = new FormData();
+    for (const key in values) {
+      if (key === "content_url") continue;
+      formData.append(key, values[key]);
+    }
+    formData.append("chapter_id",selectedChapterId)
+    if (selectedFile) {
+      formData.append("file", selectedFile);
+    }
+
+    try {
+      setUploading(true);
+      messageApi.open({
+              key: "updateLesson",
+              type: "loading",
+              content: "Đang cập nhật...",
+              duration: 10
+            })
+      console.log("=== FormData đang gửi ===");
+      for (let [key, value] of formData.entries()) {
+        if (value instanceof File) {
+          console.log(`${key}: [File] name=${value.name}, size=${value.size}, type=${value.type}`);
+        } else {
+          console.log(`${key}:`, value);
+        }
+      }
+      // console.log("URL",endpoints['update_lesson'](selectedLesson.id))
+      const res = await fetchApi({
+        method : "PATCH",
+        url : endpoints['update_lesson'](selectedLesson.id),
+        data: formData
+      })
+      // console.log(endpoints['update_lesson'](selectedLesson.id))
+      if(res.status === 200){
+        messageApi.open({
+              key: "updateLesson",
+              type: "success",
+              content: "Cập nhật bài học thành công...",
+              duration:3
+            })
+        console.log("cập nhật thành công")
+        message.success("Cập nhật bài học thành công!");
+        form.resetFields();
+        LoadChapters();
+        setSelectedChapter(null)
+        setFile(null);
+        form.resetFields();
+        setErrorMsg("");
+      }else{
+        const err = res.error || "Tạo bài học thất bại";
+        // console.log(":tạo thất bại")
+        messageApi.open({
+              key: "createLesson",
+              type: "error",
+              content: res.error,
+              duration:3
+            })
+        setErrorMsg(err);
+      }
+    } catch (err) {
+      console.error(err);
+      message.error("❌ Lỗi khi tạo bài học!");
+    } finally {
+      setUploading(false);
+      form.resetFields();
+    }
+  };
+  const renderForm = () => {
+  switch (action) {
+    case "create-chapter":
+      return <CreateChapterForm form ={form} errorMsg = {errorMsg} onFinish={createChapter} />;
+    case "update-chapter":
+      return <UpdateChapterForm form ={form} errorMsg={errorMsg} onFinish={updateChapter} chapter={selectedChapter}/>;
+    case "create-lesson":
+      return <CreateLessonForm form ={form} errorMsg={errorMsg} onFinish={createLesson}/>;
+    case "update-lesson":
+      return <UpdateLessonForm form ={form} errorMsg={errorMsg} onFinish={updateLesson} lesson = {selectedLesson}/>;
+    default:
+      return null;
+  }
+};
+const renderTitle = ()=>{
+  switch (action) {
+    case "create-chapter":
+      return "TẠO CHƯƠNG MỚI";
+    case "update-chapter":
+      return `CẬP NHẬT CHƯƠNG`;
+    case "create-lesson":
+      return "TẠO BÀI HỌC";
+    // case "update-lesson":
+    //   return "CẬP NHẬT BÀI HỌC";
+    default:
+      return null;
+  }
+};
+useEffect(() => {
+    
+    form.resetFields();
+}, [selectedChapter,selectedLesson]);
   useEffect(() => {
     loadCourse();
     LoadChapters();
@@ -257,20 +359,23 @@ const CreateChapTerLesson = () => {
       <Row gutter={[24]} className="mb-6">
         <Col span={24}>
           <div style={{ flex: 2, padding: 16, background: "#fff", borderRadius: 8 }}>
-            <h1>{selectedLesson?.title || course?.title}</h1>
-            <p>{selectedLesson?.description || course?.description}</p>
+            <h1>{course?.title}</h1>
+            <p>{course?.description}</p>
           </div>
         </Col>
       </Row>
       <Row gutter={24}>
         {/* Cột trái - Form nhập liệu */}
         <Col span={16}>
-          <Card title={isCreateChapter ? "Tạo chương" : "Tạo chương / bài học"}>
+          <Card title={renderTitle()}>
             {/* Form tạo Chapter hoặc Lesson */}
             <div className="flex-1 space-y-8">
               <div className="bg-white p-6 rounded shadow">
-                
-                {isCreateChapter ? <CreateChapterForm /> : <CreateLessonForm />}
+                {renderForm()}
+                {/* {isCreateChapter ? 
+                <CreateChapterForm form ={form} errorMsg = {errorMsg} onFinish={createChapter} /> 
+                : 
+                <CreateLessonForm form ={form} errorMsg={errorMsg} onFinish={createLesson}/>} */}
               </div>
             </div>
           </Card>
@@ -283,7 +388,7 @@ const CreateChapTerLesson = () => {
               <>
                 <p style={{ textAlign: "center", color: "#999" }}>Chưa có chương nào</p>
                 <div className="w-full mt-8" style={{ textAlign: "center" }}>
-                  <Button onClick={() => { setIsCreateChapter(true) }} type="primary">Tạo chương</Button>
+                  <Button onClick={() => {form.resetFields(); setAction("create-chapter"); }} type="primary">Tạo chương</Button>
                 </div>
               </>
 
@@ -292,7 +397,11 @@ const CreateChapTerLesson = () => {
                 <Collapse
                   accordion
                   onChange={(key) => {
-                    setSelectedChapterId(key);  // key chính là chapter.id được chọn
+                    setSelectedChapterId(Number(key));  // key chính là chapter.id được chọn
+                    const selected = chapters.find((chapter) => chapter.id === Number(key));
+                    // form.resetFields();
+                    setSelectedChapter(selected);
+                    setAction("update-chapter");
                   }}
                   items={chapters.map((chapter) => ({
                     key: chapter.id,
@@ -303,8 +412,9 @@ const CreateChapTerLesson = () => {
                           dataSource={chapter.lessons || []}
                           renderItem={(lesson) => (
                             <List.Item
-                              onClick={() => setSelectedLesson(lesson)}
-                              style={{ cursor: "pointer" }}
+                              onClick={() => {setSelectedLesson(lesson);setAction("update-lesson");}}
+                              style={{ cursor: "pointer", padding: 10 }}
+                              className="rounded-lg shadow-sm border"
                             >
                               {lesson.title}
                             </List.Item>
@@ -312,14 +422,14 @@ const CreateChapTerLesson = () => {
 
                         />
                         <div className="w-full mt-8" style={{ textAlign: "center" }}>
-                          <Button onClick={() => { setIsCreateChapter(false) }} type="primary">Tạo bài học</Button>
+                          <Button onClick={() => {form.resetFields(); setAction("create-lesson")}} type="primary">Tạo bài học</Button>
                         </div>
                       </>
                     )
                   }))}
                 />
                 <div className="w-full mt-8" style={{ textAlign: "center" }}>
-                  <Button onClick={() => { setIsCreateChapter(true) }} type="primary">Tạo chương</Button>
+                  <Button onClick={() => { form.resetFields(); setAction("create-chapter") }} type="primary">Tạo chương</Button>
                 </div>
               </>
             )}

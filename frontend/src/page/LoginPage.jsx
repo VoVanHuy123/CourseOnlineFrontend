@@ -30,7 +30,6 @@ const LoginPage = () => {
     url: endpoints["login"],
     data: values,
   });
-
   if (response.status === 200) {
     const { user, access_token } = response.data; //lấy từ response
     login(user, access_token); //gọi context login
@@ -42,6 +41,24 @@ const LoginPage = () => {
     // navigate("/");//
   } else {
     message.error(response.error?.msg || "Đăng ký thất bại");
+    // Hiển thị lỗi dưới các field
+    const errorMessage = response.error?.msg||response.error || "Đăng nhập thất bại";
+    if(response.error.field == "username"){
+      form.setFields([
+      {
+        name: "username",
+        errors: [errorMessage],
+      },
+    ]);
+    }else{
+
+      form.setFields([
+        {
+          name: "password",
+          errors: [errorMessage],
+        },
+      ]);
+    }
   }
 };
 
