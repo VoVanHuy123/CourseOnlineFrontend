@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import { Button, Card, Col, Collapse, Form, Input, List, Row, Spin, message } from "antd";
+import { useNavigate, useParams } from "react-router-dom";
+import { Button, Card, Col, Collapse, Form, Input, List, Row, Spin, message,Space,Modal } from "antd";
 import useFetchApi from "../../hooks/useFetchApi";
 import TextArea from "antd/es/input/TextArea";
 import { endpoints } from "../../services/api";
@@ -10,6 +10,7 @@ import CreateLessonForm from "../../components/form/CreateLessonForm";
 import UpdateChapterForm from "../../components/form/UpdateChapterForm";
 import UpdateLessonForm from "../../components/form/UpdateLessonForm";
 // import useFetchApi from "../hooks/useFetchApi";
+
 
 const { Panel } = Collapse;
 
@@ -30,6 +31,19 @@ const CreateChapTerLesson = () => {
   const [uploading, setUploading] = useState(false);
   const [form] = Form.useForm();
   const [errorMsg, setErrorMsg] = useState("");
+  const [open, setOpen] = useState(false);
+  const navigate = useNavigate()
+  const showModal = () => {
+    setOpen(true);
+  };
+  const handleOk = () => {
+
+    setOpen(false);
+    publicCourse();
+  };
+  const handleCancel = () => {
+    setOpen(false);
+  };
   const loadCourse = async () => {
     try {
       const res = await fetchApi({
@@ -239,9 +253,6 @@ const CreateChapTerLesson = () => {
 
     const fileList = values.content_url;
     const selectedFile = fileList && fileList.length > 0 ? fileList[0].originFileObj : null;
-    console.log(values.type)
-    console.log("file List : ", fileList)
-    console.log("selected File : ", selectedFile)
     if (!selectedFile && values.type !== "text") {
     // if (!file && values.type !== "text") {
       const msg = "Vui lòng chọn file/video phù hợp vì loại bài học của bạn là text"
@@ -330,6 +341,34 @@ const CreateChapTerLesson = () => {
       return null;
   }
 };
+
+  const publicCourse = async () => {
+      const formData = new FormData();
+      formData.append("is_public", true);
+    try {
+      await messageApi.open({
+          type: "loading",
+          content: "Đang phát hành...",
+          duration: 10,
+        });
+    const response = await fetchApi({
+      method : "PATCH",
+      url : endpoints['update_course'](id),
+      data:formData
+    })
+    if(response.status === 200){
+
+      console.log(endpoints['update_course'](id))
+      console.log("✅ Update success", response.data);
+      messageApi.success("Phát hành thành công!")
+      navigate("/")
+    }else{
+      messageApi.error("Phát hành khóa học thất bại.");
+    }
+  } catch (error) {
+    console.error("❌ Update failed", error.response?.data || error.message);
+  }
+    };
 const renderTitle = ()=>{
   switch (action) {
     case "create-chapter":
@@ -356,13 +395,51 @@ useEffect(() => {
   return (
     <>
     {contextHolder} 
-      <Row gutter={[24]} className="mb-6">
-        <Col span={24}>
-          <div style={{ flex: 2, padding: 16, background: "#fff", borderRadius: 8 }}>
-            <h1>{course?.title}</h1>
-            <p>{course?.description}</p>
-          </div>
-        </Col>
+      <Row gutter={[24]} className="mb-6 flex justify-center align-middle">
+
+          <Col span={24}>
+            <div style={{ flex: 2, padding: 16,background:"#fff", borderRadius: 8,justifyContent:"center",alignItems:"center"}} className="flex flex-row" >
+              <div className="flex-1">
+
+                <h1>{course?.title}</h1>
+                <p>{course?.description}</p>
+              </div>
+              <div className="flex flex-row">
+                {!course.is_public ? 
+                <div className="mr-8">
+                  <Space>
+                    <Button type="primary" onClick={showModal}>
+                      Phát hành
+                    </Button>
+                  </Space>
+                  <Modal
+                    open={open}
+                    title="Xác Nhận Phát Hành Khóa Học"
+                    onOk={handleOk}
+                    onCancel={handleCancel}
+                    footer={(_, { OkBtn, CancelBtn }) => (
+                      <>
+                        {/* <Button>Custom Button</Button> */}
+                        <CancelBtn/>
+                        <OkBtn />
+                      </>
+                    )}
+                  >
+                    <p>PHÁT HÀNH KHÓA HỌC</p>
+                    
+                  </Modal>
+                </div> : <></>}
+      
+                 <Button onClick={()=>navigate(`/courses/update/${id}`)} type="primary">Chỉnh sửa</Button>
+              </div>
+            </div>
+          </Col>
+          <Col span ={6}>
+          {/* <div style={{ flex: 2, padding: 16,background:"#fff", borderRadius: 8 }}>
+
+            <Button Button type="primary">Chỉnh sửa</Button>
+          </div> */}
+          </Col>
       </Row>
       <Row gutter={24}>
         {/* Cột trái - Form nhập liệu */}

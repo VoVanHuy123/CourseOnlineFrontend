@@ -65,15 +65,13 @@ const TeacherHomePage = () => {
   return (
     <div style={{ padding: "24px" }}>
       <div className="">
-
-      
-      <h2 style={{ marginBottom: 24, fontSize: 24 }}>Danh sách khóa học</h2>
+      <h2 style={{ marginBottom: 24, fontSize: 24 }}>Danh sách khóa học chưa đăng tải</h2>
       <Row gutter={[50, 16]}>
         {(loading ? Array.from({ length: 8 }) : coursesNotPublic).map((course, index) => (
           <Col key={index} xs={24} sm={12} md={8} lg={6}>
             <Card
               hoverable
-              onClick={() => navigate(`/courses/${course.id}`)}
+              onClick={() => navigate(`/courses/options/${course.id}`)}
               style={{ cursor: "pointer" }}
               loading={loading}
               cover={
@@ -101,14 +99,14 @@ const TeacherHomePage = () => {
         ))}
       </Row>
       </div>
-      <div className="">
-        <h2 style={{ marginBottom: 24, fontSize: 24 }}>Danh sách khóa học</h2>
+      <div className="mt-8">
+        <h2 style={{ marginBottom: 24, fontSize: 24 }}>Danh sách khóa học đã đăng tải</h2>
       <Row gutter={[50, 16]}>
         {(loading ? Array.from({ length: 8 }) : publicCourses).map((course, index) => (
           <Col key={index} xs={24} sm={12} md={8} lg={6}>
             <Card
               hoverable
-              onClick={() => navigate(`/courses/${course.id}`)}
+              onClick={() => navigate(`/courses/options/${course.id}`)}
               style={{ cursor: "pointer" }}
               loading={loading}
               cover={

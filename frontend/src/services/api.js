@@ -13,7 +13,8 @@ export const endpoints = {
     "refresh":`/auth/refresh`,
     'lessons':`/courses/lessons`,
     "update_chapter":(id)=>`/courses/chapters/${id}`,
-    "update_lesson":(id)=>`/courses/lessons/${id}`
+    "update_lesson":(id)=>`/courses/lessons/${id}`,
+    "update_course":(id)=>`/courses/${id}`
 }
 // export const authApis = (token) => {
 //     return axios.create({

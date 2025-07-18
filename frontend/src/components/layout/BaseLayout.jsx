@@ -39,7 +39,7 @@ const BaseLayout = ({ children }) => {
                     minHeight: "calc(100vh - 134px)",
                   }}
                 >
-                  <div className="shadow-2xl rounded-b-2xl px-10 py-10">
+                  <div className="shadow-xl rounded-b-2xl px-10 py-10">
 
                     {children}
                   </div>
