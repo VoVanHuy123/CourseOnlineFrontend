@@ -7,6 +7,8 @@ import CreateCourse from './page/teacher/CreateCoursePage';
 import PrivateRoute from './components/routes/PrivateRoute';
 import CreateChapTerLesson from "./page/teacher/CreateChapTerLesson";
 import UpdateCoure from "./page/teacher/UpdateCoursePage";
+import DetailCoursePage from "./page/student/DetailCoursePage";
+import LessonPage from "./page/student/LessonPage";
 
 const AppRoutes = () => (
   <Routes>
@@ -39,6 +41,23 @@ const AppRoutes = () => (
       element={
         <PrivateRoute allowedRoles={["teacher"]}>
           <UpdateCoure />
+        </PrivateRoute>
+      }
+    />
+    <Route
+      path="/courses/:id"
+      element={
+        <PrivateRoute allowedRoles={["student"]}>
+          <DetailCoursePage />
+        </PrivateRoute>
+      }
+    />
+
+    <Route
+      path="/courses/:courseId/lessons/:lessonId"
+      element={
+        <PrivateRoute allowedRoles={["student"]}>
+          <LessonPage />
         </PrivateRoute>
       }
     />
