@@ -16,6 +16,8 @@ export const endpoints = {
   update_chapter: (id) => `/courses/chapters/${id}`,
   update_lesson: (id) => `/courses/lessons/${id}`,
   update_course: (id) => `/courses/${id}`,
+  enroll: (id) => `/courses/${id}/enroll`,
+  course_detail: (id) => `/courses/${id}`,
   get_comments:"/comments/",
   create_comments:"/comments"
 };

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Skeleton, message } from "antd";
+import { Skeleton, message, Modal, Radio, Button, Space } from "antd";
 import { endpoints } from "../../services/api";
 import useFetchApi from "../../hooks/useFetchApi";
 import courseCover from "../../assets/img/course-cover.jpg";
@@ -12,6 +12,10 @@ const DetailCoursePage = () => {
   const [chapters, setChapters] = useState([]);
   const [courseProgress, setCourseProgress] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("vnpay");
+  const [enrolling, setEnrolling] = useState(false);
+  const [enrollmentStatus, setEnrollmentStatus] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -24,6 +28,11 @@ const DetailCoursePage = () => {
         });
         console.log("Course detail response:", res.data);
         setCourse(res.data);
+
+        // Lưu enrollment status từ API response
+        if (res.data.enrollment_status) {
+          setEnrollmentStatus(res.data.enrollment_status);
+        }
 
         const resChapters = await fetchApi({
           url: endpoints["course-chapters"](id),
@@ -50,6 +59,56 @@ const DetailCoursePage = () => {
     };
     fetchCourse();
   }, [id]);
+
+  // Hàm xử lý đăng ký khóa học
+  const handleEnrollCourse = async () => {
+    // Nếu khóa học miễn phí, đăng ký với vnpay (backend sẽ xử lý khóa học miễn phí)
+    if (course.price === 0) {
+      try {
+        const res = await fetchApi({
+          url: endpoints.enroll(id),
+          method: "POST",
+          data: { payment_method: "vnpay" },
+        });
+        message.success("Đăng ký khóa học thành công!");
+        // Reload trang để cập nhật trạng thái
+        window.location.reload();
+      } catch (err) {
+        message.error("Đăng ký khóa học thất bại: " + (err.response?.data?.msg || "Lỗi không xác định"));
+      }
+    } else {
+      // Hiển thị modal chọn phương thức thanh toán
+      setShowPaymentModal(true);
+    }
+  };
+
+  // Hàm xử lý thanh toán
+  const handlePayment = async () => {
+    setEnrolling(true);
+    try {
+      const res = await fetchApi({
+        url: endpoints.enroll(id),
+        method: "POST",
+        data: { payment_method: selectedPaymentMethod },
+      });
+
+      console.log("Enrollment response:", res.data);
+
+      // Nếu có payment_url, chuyển hướng đến trang thanh toán
+      if (res.data.payment_info?.payment_url) {
+        window.location.href = res.data.payment_info.payment_url;
+      } else {
+        message.success("Đăng ký khóa học thành công!");
+        setShowPaymentModal(false);
+        // Reload trang để cập nhật trạng thái
+        window.location.reload();
+      }
+    } catch (err) {
+      message.error("Đăng ký khóa học thất bại: " + (err.response?.data?.msg || "Lỗi không xác định"));
+    } finally {
+      setEnrolling(false);
+    }
+  };
 
   if (loading || !course) return <Skeleton active />;
 
@@ -150,7 +209,7 @@ const DetailCoursePage = () => {
                               // Cùng chapter, bài học trước đó
                               prevLesson =
                                 chapters[currentChapterIndex].lessons[
-                                  currentLessonIndex - 1
+                                currentLessonIndex - 1
                                 ];
                             } else if (currentChapterIndex > 0) {
                               // Chapter trước đó, bài học cuối cùng
@@ -162,7 +221,7 @@ const DetailCoursePage = () => {
                               ) {
                                 prevLesson =
                                   prevChapter.lessons[
-                                    prevChapter.lessons.length - 1
+                                  prevChapter.lessons.length - 1
                                   ];
                               }
                             }
@@ -186,13 +245,12 @@ const DetailCoursePage = () => {
                         return (
                           <li
                             key={lesson.id}
-                            className={`px-3 py-2 transition border border-gray-100 ${
-                              isLocked
-                                ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                                : lessonCompleted
+                            className={`px-3 py-2 transition border border-gray-100 ${isLocked
+                              ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                              : lessonCompleted
                                 ? "bg-green-50 text-green-800 cursor-pointer hover:bg-green-100"
                                 : "text-gray-700 cursor-pointer hover:bg-gray-50"
-                            }`}
+                              }`}
                             onClick={() => {
                               if (!isLocked) {
                                 navigate(`/courses/${id}/lessons/${lesson.id}`);
@@ -274,12 +332,109 @@ const DetailCoursePage = () => {
               )}
             </div>
             <div className="mb-4 text-center font-semibold">{course.title}</div>
-            <button className="bg-blue-500 text-white px-6 py-2 rounded font-semibold hover:bg-blue-600 transition">
-              Đăng kí
-            </button>
+            {enrollmentStatus ? (
+              enrollmentStatus.is_enrolled ? (
+                enrollmentStatus.payment_status ? (
+                  <button
+                    onClick={() => navigate(`/courses/${id}/lessons`)}
+                    className="bg-green-500 text-white px-6 py-2 rounded font-semibold hover:bg-green-600 transition"
+                  >
+                    Vào học
+                  </button>
+                ) : (
+                  <div className="text-center">
+                    <div className="text-orange-600 font-semibold mb-2">Chờ thanh toán</div>
+                    <button
+                      onClick={handleEnrollCourse}
+                      className="bg-orange-500 text-white px-6 py-2 rounded font-semibold hover:bg-orange-600 transition"
+                    >
+                      Thanh toán
+                    </button>
+                  </div>
+                )
+              ) : (
+                <button
+                  onClick={handleEnrollCourse}
+                  className="bg-blue-500 text-white px-6 py-2 rounded font-semibold hover:bg-blue-600 transition"
+                >
+                  Đăng ký
+                </button>
+              )
+            ) : (
+              <button
+                onClick={handleEnrollCourse}
+                className="bg-blue-500 text-white px-6 py-2 rounded font-semibold hover:bg-blue-600 transition"
+              >
+                Đăng ký
+              </button>
+            )}
           </div>
         </div>
       </div>
+
+      {/* Modal chọn phương thức thanh toán */}
+      <Modal
+        title="Chọn phương thức thanh toán"
+        open={showPaymentModal}
+        onCancel={() => setShowPaymentModal(false)}
+        footer={null}
+        centered
+      >
+        <div className="py-4">
+          <p className="mb-4 text-gray-600">
+            Khóa học: <strong>{course?.title}</strong>
+          </p>
+          <p className="mb-6 text-lg font-semibold text-blue-600">
+            Giá: {course?.price?.toLocaleString()} VNĐ
+          </p>
+
+          <div className="mb-6">
+            <p className="mb-3 font-medium">Chọn phương thức thanh toán:</p>
+            <Radio.Group
+              value={selectedPaymentMethod}
+              onChange={(e) => setSelectedPaymentMethod(e.target.value)}
+              className="w-full"
+            >
+              <Space direction="vertical" className="w-full">
+                <Radio value="vnpay" className="w-full p-3 border rounded hover:bg-blue-50">
+                  <div className="flex items-center gap-3">
+                    <img
+                      src="https://vnpay.vn/s1/statics.vnpay.vn/2023/9/06ncktiwd6dc1694418196384.png"
+                      alt="VNPay"
+                      className="w-8 h-8"
+                    />
+                    <span className="font-medium">VNPay</span>
+                  </div>
+                </Radio>
+                <Radio value="momo" className="w-full p-3 border rounded hover:bg-pink-50">
+                  <div className="flex items-center gap-3">
+                    <img
+                      src="https://cdn.haitrieu.com/wp-content/uploads/2022/10/Logo-MoMo-Circle.png"
+                      alt="MoMo"
+                      className="w-8 h-8"
+                    />
+                    <span className="font-medium">MoMo</span>
+                  </div>
+                </Radio>
+              </Space>
+            </Radio.Group>
+          </div>
+
+          <div className="flex gap-3 justify-end">
+            <Button onClick={() => setShowPaymentModal(false)}>
+              Hủy
+            </Button>
+            <Button
+              type="primary"
+              loading={enrolling}
+              onClick={handlePayment}
+              className="bg-blue-500"
+            >
+              Thanh toán
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 };
