@@ -14,6 +14,7 @@ const useFetchApi = () => {
     const headers = {
       Authorization: `Bearer ${token || localStorage.getItem("token")}`,
     };
+    
 
     // Nếu là FormData thì KHÔNG gán Content‑Type
     if (!(data instanceof FormData)) {

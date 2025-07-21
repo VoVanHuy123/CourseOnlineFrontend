@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Button, Card, Col, Collapse, Form, Input, List, Row, Spin, message,Space,Modal } from "antd";
+import { Button, Card, Col, Collapse, Form, Input, List, Row, Spin, message,Space,Modal, Drawer } from "antd";
 import useFetchApi from "../../hooks/useFetchApi";
 import TextArea from "antd/es/input/TextArea";
 import { endpoints } from "../../services/api";
@@ -9,6 +9,7 @@ import CreateChapterForm from "../../components/form/CreateChapterForm";
 import CreateLessonForm from "../../components/form/CreateLessonForm";
 import UpdateChapterForm from "../../components/form/UpdateChapterForm";
 import UpdateLessonForm from "../../components/form/UpdateLessonForm";
+import CommentArea from "../../components/comment/CommentArea";
 // import useFetchApi from "../hooks/useFetchApi";
 
 
@@ -18,21 +19,40 @@ const { Panel } = Collapse;
 const CreateChapTerLesson = () => {
   const { id } = useParams(); // lấy id khóa học từ URL
   const { fetchApi } = useFetchApi();
+
+  //course
   const [course, setCourse] = useState(null);
+
+  //chapter
   const [chapters, setChapters] = useState([]);
   const [selectedChapterId, setSelectedChapterId] = useState(-1)
   const [selectedChapter, setSelectedChapter] = useState(null)
+  //lesson
   const [selectedLesson, setSelectedLesson] = useState(null);
+
   const [loading, setLoading] = useState(true);
   const [messageApi, contextHolder] = message.useMessage();
-  const [isCreateChapter, setIsCreateChapter] = useState(true);
+
   const [action, setAction] = useState("create-chapter");
   const [file, setFile] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [form] = Form.useForm();
   const [errorMsg, setErrorMsg] = useState("");
   const [open, setOpen] = useState(false);
+
+  //drawer
+  const [openDrawer, setOpenDrawer] = useState(false);
+    const showDrawer = () => {
+      setOpenDrawer(true);
+    };
+    const onClose = () => {
+      setOpenDrawer(false);
+    };
+
+
+    //model
   const navigate = useNavigate()
+
   const showModal = () => {
     setOpen(true);
   };
@@ -44,6 +64,8 @@ const CreateChapTerLesson = () => {
   const handleCancel = () => {
     setOpen(false);
   };
+
+
   const loadCourse = async () => {
     try {
       const res = await fetchApi({
@@ -398,7 +420,7 @@ useEffect(() => {
       <Row gutter={[24]} className="mb-6 flex justify-center align-middle">
 
           <Col span={24}>
-            <div style={{ flex: 2, padding: 16,background:"#fff", borderRadius: 8,justifyContent:"center",alignItems:"center"}} className="flex flex-row" >
+            <div  style={{ flex: 2, padding: 16,background:"#fff", borderRadius: 8,justifyContent:"center",alignItems:"center"}} className="flex flex-row shadow-md" >
               <div className="flex-1">
 
                 <h1>{course?.title}</h1>
@@ -434,25 +456,15 @@ useEffect(() => {
               </div>
             </div>
           </Col>
-          <Col span ={6}>
-          {/* <div style={{ flex: 2, padding: 16,background:"#fff", borderRadius: 8 }}>
-
-            <Button Button type="primary">Chỉnh sửa</Button>
-          </div> */}
-          </Col>
       </Row>
-      <Row gutter={24}>
+      <Row gutter={24} >
         {/* Cột trái - Form nhập liệu */}
-        <Col span={16}>
-          <Card title={renderTitle()}>
+        <Col span={16} >
+          <Card className="shadow-xl" title={renderTitle()}>
             {/* Form tạo Chapter hoặc Lesson */}
             <div className="flex-1 space-y-8">
               <div className="bg-white p-6 rounded shadow">
                 {renderForm()}
-                {/* {isCreateChapter ? 
-                <CreateChapterForm form ={form} errorMsg = {errorMsg} onFinish={createChapter} /> 
-                : 
-                <CreateLessonForm form ={form} errorMsg={errorMsg} onFinish={createLesson}/>} */}
               </div>
             </div>
           </Card>
@@ -460,7 +472,7 @@ useEffect(() => {
 
         {/* Cột phải - Danh sách đã tạo */}
         <Col span={8}>
-          <Card title="Danh sách chương & bài học">
+          <Card className="shadow-xl" title="Danh sách chương & bài học">
             {chapters.length === 0 ? (
               <>
                 <p style={{ textAlign: "center", color: "#999" }}>Chưa có chương nào</p>
@@ -492,6 +504,15 @@ useEffect(() => {
                               onClick={() => {setSelectedLesson(lesson);setAction("update-lesson");}}
                               style={{ cursor: "pointer", padding: 10 }}
                               className="rounded-lg shadow-sm border"
+                              actions={[
+                                <Button type="primary" onClick={(e) => {
+                                  e.stopPropagation(); // không để nó trigger List.Item click
+                                  setSelectedLesson(lesson)
+                                  showDrawer();
+                                }}>
+                                  Comment
+                                </Button>
+                              ]}
                             >
                               {lesson.title}
                             </List.Item>
@@ -513,6 +534,19 @@ useEffect(() => {
 
           </Card>
         </Col>
+      </Row>
+
+      {/* Drawer comments */}
+      <Row className="mt-16  py-4 rounded-33xl">
+        <Drawer
+        title={`Comment: ${selectedLesson ? selectedLesson.title : ""}`}
+        closable={{ 'aria-label': 'Close Button' }}
+        onClose={onClose}
+        open={openDrawer}
+      >
+        <CommentArea lesson={selectedLesson}/>
+      </Drawer>
+      
       </Row>
     </>
   );
