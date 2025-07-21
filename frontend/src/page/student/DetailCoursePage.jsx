@@ -258,7 +258,7 @@ const DetailCoursePage = () => {
         <div className="w-full md:w-80 flex flex-col items-center">
           <div className="bg-gray-100 rounded-xl flex items-center justify-center w-full h-48 mb-6">
             <img
-              src={course.cover || courseCover}
+              src={course.image || courseCover}
               alt={course.title}
               className="object-contain h-40"
             />
