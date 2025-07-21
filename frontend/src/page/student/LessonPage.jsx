@@ -194,7 +194,7 @@ const LessonPage = () => {
         <div className="flex-1">
           <div className="bg-blue-50 rounded-xl w-full mb-6">
             {/* Hiển thị nội dung theo loại */}
-            {lesson.content_type === "video" && lesson.content_url ? (
+            {lesson.type === "video" && lesson.content_url ? (
               <div className="aspect-video">
                 <video
                   src={lesson.content_url}
@@ -202,7 +202,7 @@ const LessonPage = () => {
                   className="w-full h-full rounded-xl"
                 />
               </div>
-            ) : lesson.content_type === "text" && lesson.content ? (
+            ) : lesson.type === "text" && lesson.content ? (
               <div className="p-6 min-h-[300px]">
                 <div className="bg-white rounded-lg p-6 shadow-sm">
                   <h3 className="text-lg font-semibold mb-4">
@@ -213,7 +213,7 @@ const LessonPage = () => {
                   </div>
                 </div>
               </div>
-            ) : lesson.content_type === "file" && lesson.content_url ? (
+            ) : lesson.type === "file" && lesson.content_url ? (
               <div className="p-6 min-h-[300px] flex items-center justify-center">
                 <div className="bg-white rounded-lg p-8 shadow-sm text-center">
                   <div className="mb-4">

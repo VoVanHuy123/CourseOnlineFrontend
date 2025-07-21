@@ -1,6 +1,7 @@
 import axios from "axios";
 
 export const BASE_URL = "http://127.0.0.1:5000/";
+// export const BASE_URL = "https://courseonline-yf2n.onrender.com";
 export const endpoints = {
   login: "/auth/login",
   register: "/auth/register",
@@ -15,6 +16,8 @@ export const endpoints = {
   update_chapter: (id) => `/courses/chapters/${id}`,
   update_lesson: (id) => `/courses/lessons/${id}`,
   update_course: (id) => `/courses/${id}`,
+  get_comments:"/comments/",
+  create_comments:"/comments"
 };
 // export const authApis = (token) => {
 //     return axios.create({
