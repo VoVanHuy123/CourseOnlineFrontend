@@ -9,6 +9,7 @@ import CreateChapTerLesson from "./page/teacher/CreateChapTerLesson";
 import UpdateCoure from "./page/teacher/UpdateCoursePage";
 import DetailCoursePage from "./page/student/DetailCoursePage";
 import LessonPage from "./page/student/LessonPage";
+import PaymentReturnPage from "./page/payment/PaymentReturnPage";
 
 const AppRoutes = () => (
   <Routes>
@@ -58,6 +59,16 @@ const AppRoutes = () => (
       element={
         <PrivateRoute allowedRoles={["student"]}>
           <LessonPage />
+        </PrivateRoute>
+      }
+    />
+
+    {/* Payment Return Routes */}
+    <Route
+      path="/payment/return"
+      element={
+        <PrivateRoute allowedRoles={["student"]}>
+          <PaymentReturnPage />
         </PrivateRoute>
       }
     />
