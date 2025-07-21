@@ -155,7 +155,7 @@ const StudentHomePage = () => {
                   }}
                 >
                   <img
-                    src={course.cover || courseCover}
+                    src={course.image || courseCover}
                     alt={course.title}
                     className="w-full h-40 object-cover rounded-t-xl"
                   />
