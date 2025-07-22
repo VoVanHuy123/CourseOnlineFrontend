@@ -18,6 +18,7 @@ const LessonPage = () => {
   const [isCompleted, setIsCompleted] = useState(false);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
   const isFetchingRef = useRef(false);
+  const [enrollmentStatus, setEnrollmentStatus] = useState(null);
 
   // Lấy thông tin course và chapters
   useEffect(() => {
@@ -28,7 +29,7 @@ const LessonPage = () => {
       setLoading(true);
       try {
         const resCourse = await fetchApi({
-          url: `${endpoints.courses}/${courseId}`,
+          url: endpoints.course_detail(courseId),
           method: "GET",
         });
         setCourse(resCourse.data);
@@ -41,12 +42,23 @@ const LessonPage = () => {
 
         try {
           const resProgress = await fetchApi({
-            url: `/learning/courses/${courseId}/progress`,
+            url: endpoints.course_progress(courseId),
             method: "GET",
           });
           setCourseProgress(resProgress.data);
         } catch (err) {
           console.log("Không thể tải tiến trình khóa học:", err);
+        }
+
+        // Lấy trạng thái đăng ký
+        try {
+          const resEnrollStatus = await fetchApi({
+            url: endpoints.enrollment_status(courseId),
+            method: "GET",
+          });
+          setEnrollmentStatus(resEnrollStatus.data);
+        } catch (err) {
+          setEnrollmentStatus(null);
         }
       } catch (err) {
         message.error("Không thể tải dữ liệu bài học");
@@ -101,19 +113,20 @@ const LessonPage = () => {
 
   //hoàn thành và bỏ hoàn thành
   const handleToggleComplete = async () => {
+    if (!enrollmentStatus?.is_enrolled) {
+      message.error("Bạn cần đăng ký khóa học để hoàn thành bài học này.");
+      return;
+    }
     try {
-      const endpoint = isCompleted ? "uncomplete" : "complete";
+      const endpoint = isCompleted
+        ? endpoints.uncomplete_lesson(lessonId)
+        : endpoints.complete_lesson(lessonId);
+
       const res = await fetchApi({
-        url: `/learning/lessons/${lessonId}/${endpoint}`,
+        url: endpoint,
         method: "POST",
       });
 
-      console.log("API response:", res); // Debug log
-
-      // Kiểm tra response format
-      console.log("Complete/Uncomplete response:", res);
-
-      // Có thể API trả về success message thay vì data
       if (res.data || res.msg) {
         setIsCompleted(!isCompleted);
         message.success(
@@ -123,10 +136,9 @@ const LessonPage = () => {
         // Cập nhật lại tiến trình khóa học
         try {
           const resProgress = await fetchApi({
-            url: `/learning/courses/${courseId}/progress`,
+            url: endpoints.course_progress(courseId),
             method: "GET",
           });
-          console.log("Progress response:", resProgress); // Debug log
           setCourseProgress(resProgress.data);
         } catch (progressErr) {
           console.error("Lỗi khi cập nhật progress:", progressErr);
@@ -137,6 +149,8 @@ const LessonPage = () => {
       message.error("Có lỗi xảy ra khi cập nhật trạng thái bài học");
     }
   };
+
+  console.log("lesson", lesson);
 
   return (
     <div className="relative min-h-screen bg-white">
@@ -194,7 +208,7 @@ const LessonPage = () => {
         <div className="flex-1">
           <div className="bg-blue-50 rounded-xl w-full mb-6">
             {/* Hiển thị nội dung theo loại */}
-            {lesson.type === "video" && lesson.content_url ? (
+            {lesson.type === "Type.VIDEO" && lesson.content_url ? (
               <div className="aspect-video">
                 <video
                   src={lesson.content_url}
@@ -202,7 +216,7 @@ const LessonPage = () => {
                   className="w-full h-full rounded-xl"
                 />
               </div>
-            ) : lesson.type === "text" && lesson.content ? (
+            ) : lesson.type === "Type.TEXT" && lesson.content ? (
               <div className="p-6 min-h-[300px]">
                 <div className="bg-white rounded-lg p-6 shadow-sm">
                   <h3 className="text-lg font-semibold mb-4">
@@ -213,7 +227,7 @@ const LessonPage = () => {
                   </div>
                 </div>
               </div>
-            ) : lesson.type === "file" && lesson.content_url ? (
+            ) : lesson.type === "Type.FILE" && lesson.content_url ? (
               <div className="p-6 min-h-[300px] flex items-center justify-center">
                 <div className="bg-white rounded-lg p-8 shadow-sm text-center">
                   <div className="mb-4">
@@ -280,10 +294,15 @@ const LessonPage = () => {
           <div className="flex justify-center mt-6 mb-4">
             <button
               onClick={handleToggleComplete}
+              disabled={!enrollmentStatus?.is_enrolled}
               className={`px-8 py-3 rounded-lg font-semibold transition flex items-center gap-2 ${
                 isCompleted
                   ? "bg-green-500 text-white hover:bg-green-600"
                   : "bg-blue-500 text-white hover:bg-blue-600"
+              } ${
+                !enrollmentStatus?.is_enrolled
+                  ? "bg-gray-300 text-gray-400 cursor-not-allowed"
+                  : ""
               }`}
             >
               {isCompleted ? (
@@ -329,13 +348,44 @@ const LessonPage = () => {
               Bài trước
             </button>
             <button
-              className="px-6 py-2 rounded bg-blue-500 text-white font-semibold hover:bg-blue-600 transition flex items-center"
+              className={`px-6 py-2 rounded font-semibold transition flex items-center ${
+                !nextLesson || !isCompleted
+                  ? "bg-gray-300 text-gray-400 cursor-not-allowed"
+                  : "bg-blue-500 text-white hover:bg-blue-600"
+              }`}
               onClick={() =>
                 nextLesson &&
+                isCompleted &&
                 navigate(`/courses/${courseId}/lessons/${nextLesson.id}`)
               }
-              disabled={!nextLesson}
+              disabled={!nextLesson || !isCompleted}
             >
+              {(!nextLesson || !isCompleted) && (
+                <svg
+                  width="20"
+                  height="20"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  className="mr-2"
+                >
+                  <rect
+                    x="3"
+                    y="11"
+                    width="18"
+                    height="11"
+                    rx="2"
+                    ry="2"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  />
+                  <circle cx="12" cy="16" r="1" fill="currentColor" />
+                  <path
+                    d="M7 11V7a5 5 0 0 1 10 0v4"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  />
+                </svg>
+              )}
               Bài tiếp theo
               <svg
                 className="ml-2"

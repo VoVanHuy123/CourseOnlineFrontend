@@ -23,16 +23,10 @@ const DetailCoursePage = () => {
       setLoading(true);
       try {
         const res = await fetchApi({
-          url: `${endpoints.courses}/${id}`,
+          url: endpoints.course_detail(id),
           method: "GET",
         });
-        console.log("Course detail response:", res.data);
         setCourse(res.data);
-
-        // Lưu enrollment status từ API response
-        if (res.data.enrollment_status) {
-          setEnrollmentStatus(res.data.enrollment_status);
-        }
 
         const resChapters = await fetchApi({
           url: endpoints["course-chapters"](id),
@@ -43,13 +37,23 @@ const DetailCoursePage = () => {
 
         // Lấy tiến trình khóa học
         try {
+          console.log("Gọi API tiến trình:", endpoints.course_progress(id));
           const resProgress = await fetchApi({
-            url: `/learning/courses/${id}/progress`,
+            url: endpoints.course_progress(id),
             method: "GET",
           });
           setCourseProgress(resProgress.data);
         } catch (err) {
           console.log("Không thể tải tiến trình khóa học:", err);
+        }
+        try {
+          const resEnrollStatus = await fetchApi({
+            url: endpoints.enrollment_status(id),
+            method: "GET",
+          });
+          setEnrollmentStatus(resEnrollStatus.data);
+        } catch (err) {
+          setEnrollmentStatus(null);
         }
       } catch (err) {
         message.error("Không thể tải thông tin khóa học");
@@ -62,22 +66,25 @@ const DetailCoursePage = () => {
 
   // Hàm xử lý đăng ký khóa học
   const handleEnrollCourse = async () => {
-    // Nếu khóa học miễn phí, đăng ký với vnpay (backend sẽ xử lý khóa học miễn phí)
     if (course.price === 0) {
       try {
         const res = await fetchApi({
-          url: endpoints.enroll(id),
+          url: endpoints.enroll_free(id),
           method: "POST",
-          data: { payment_method: "vnpay" },
         });
         message.success("Đăng ký khóa học thành công!");
-        // Reload trang để cập nhật trạng thái
-        window.location.reload();
+        setEnrollmentStatus({
+          ...(enrollmentStatus || {}),
+          is_enrolled: true,
+          payment_status: true,
+        });
       } catch (err) {
-        message.error("Đăng ký khóa học thất bại: " + (err.response?.data?.msg || "Lỗi không xác định"));
+        message.error(
+          "Đăng ký khóa học thất bại: " +
+            (err.response?.data?.msg || "Lỗi không xác định")
+        );
       }
     } else {
-      // Hiển thị modal chọn phương thức thanh toán
       setShowPaymentModal(true);
     }
   };
@@ -104,7 +111,10 @@ const DetailCoursePage = () => {
         window.location.reload();
       }
     } catch (err) {
-      message.error("Đăng ký khóa học thất bại: " + (err.response?.data?.msg || "Lỗi không xác định"));
+      message.error(
+        "Đăng ký khóa học thất bại: " +
+          (err.response?.data?.msg || "Lỗi không xác định")
+      );
     } finally {
       setEnrolling(false);
     }
@@ -209,7 +219,7 @@ const DetailCoursePage = () => {
                               // Cùng chapter, bài học trước đó
                               prevLesson =
                                 chapters[currentChapterIndex].lessons[
-                                currentLessonIndex - 1
+                                  currentLessonIndex - 1
                                 ];
                             } else if (currentChapterIndex > 0) {
                               // Chapter trước đó, bài học cuối cùng
@@ -221,7 +231,7 @@ const DetailCoursePage = () => {
                               ) {
                                 prevLesson =
                                   prevChapter.lessons[
-                                  prevChapter.lessons.length - 1
+                                    prevChapter.lessons.length - 1
                                   ];
                               }
                             }
@@ -245,12 +255,13 @@ const DetailCoursePage = () => {
                         return (
                           <li
                             key={lesson.id}
-                            className={`px-3 py-2 transition border border-gray-100 ${isLocked
-                              ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                              : lessonCompleted
+                            className={`px-3 py-2 transition border border-gray-100 ${
+                              isLocked
+                                ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                                : lessonCompleted
                                 ? "bg-green-50 text-green-800 cursor-pointer hover:bg-green-100"
                                 : "text-gray-700 cursor-pointer hover:bg-gray-50"
-                              }`}
+                            }`}
                             onClick={() => {
                               if (!isLocked) {
                                 navigate(`/courses/${id}/lessons/${lesson.id}`);
@@ -336,14 +347,32 @@ const DetailCoursePage = () => {
               enrollmentStatus.is_enrolled ? (
                 enrollmentStatus.payment_status ? (
                   <button
-                    onClick={() => navigate(`/courses/${id}/lessons`)}
+                    onClick={() => {
+                      // Tìm bài học đầu tiên
+                      let firstLessonId = null;
+                      if (chapters && chapters.length > 0) {
+                        for (const chapter of chapters) {
+                          if (chapter.lessons && chapter.lessons.length > 0) {
+                            firstLessonId = chapter.lessons[0].id;
+                            break;
+                          }
+                        }
+                      }
+                      if (firstLessonId) {
+                        navigate(`/courses/${id}/lessons/${firstLessonId}`);
+                      } else {
+                        message.info("Khóa học chưa có bài học nào.");
+                      }
+                    }}
                     className="bg-green-500 text-white px-6 py-2 rounded font-semibold hover:bg-green-600 transition"
                   >
                     Vào học
                   </button>
                 ) : (
                   <div className="text-center">
-                    <div className="text-orange-600 font-semibold mb-2">Chờ thanh toán</div>
+                    <div className="text-orange-600 font-semibold mb-2">
+                      Chờ thanh toán
+                    </div>
                     <button
                       onClick={handleEnrollCourse}
                       className="bg-orange-500 text-white px-6 py-2 rounded font-semibold hover:bg-orange-600 transition"
@@ -396,7 +425,10 @@ const DetailCoursePage = () => {
               className="w-full"
             >
               <Space direction="vertical" className="w-full">
-                <Radio value="vnpay" className="w-full p-3 border rounded hover:bg-blue-50">
+                <Radio
+                  value="vnpay"
+                  className="w-full p-3 border rounded hover:bg-blue-50"
+                >
                   <div className="flex items-center gap-3">
                     <img
                       src="https://vnpay.vn/s1/statics.vnpay.vn/2023/9/06ncktiwd6dc1694418196384.png"
@@ -406,7 +438,10 @@ const DetailCoursePage = () => {
                     <span className="font-medium">VNPay</span>
                   </div>
                 </Radio>
-                <Radio value="momo" className="w-full p-3 border rounded hover:bg-pink-50">
+                <Radio
+                  value="momo"
+                  className="w-full p-3 border rounded hover:bg-pink-50"
+                >
                   <div className="flex items-center gap-3">
                     <img
                       src="https://cdn.haitrieu.com/wp-content/uploads/2022/10/Logo-MoMo-Circle.png"
@@ -421,9 +456,7 @@ const DetailCoursePage = () => {
           </div>
 
           <div className="flex gap-3 justify-end">
-            <Button onClick={() => setShowPaymentModal(false)}>
-              Hủy
-            </Button>
+            <Button onClick={() => setShowPaymentModal(false)}>Hủy</Button>
             <Button
               type="primary"
               loading={enrolling}
