@@ -19,7 +19,13 @@ export const endpoints = {
   enroll: (id) => `/courses/${id}/enroll`,
   course_detail: (id) => `/courses/${id}`,
   get_comments:"/comments/",
-  create_comments:"/comments"
+  create_comments:"/comments",
+  "stats_total_students": "/stats/total-students",
+  "stats_chapter_lesson": "/stats/chapters-lessons",
+  "stats_avg_lessons": "/stats/avg-lessons-per-chapter",
+  "stats_publish_rate": "/stats/published-lesson-rate",
+  "stats_avg_rating": "/stats/avg-rating",
+  "stats_students_completed": "/stats/students-completed-lessons"
 };
 // export const authApis = (token) => {
 //     return axios.create({
