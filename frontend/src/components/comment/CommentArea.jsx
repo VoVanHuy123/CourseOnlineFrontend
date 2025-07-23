@@ -88,7 +88,7 @@ const CommentArea = ({lesson}) => {
                 header={<Comment comment={comment}/>} 
             >
               {comment.replies?.map((reply) => (
-                <div key={reply.id} className="pl-10">
+                <div key={reply.id} className="pl-10 pb-4">
                   <Reply reply={reply} />
                 </div>
               ))}

@@ -42,6 +42,7 @@ const RegisterPage = () => {
         duration:5
       })
       form.resetFields();
+      re
     } else {
       setErr(response.data.msg)
       message.error(response.error?.msg || "Đăng ký thất bại");
