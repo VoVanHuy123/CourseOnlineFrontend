@@ -28,7 +28,7 @@ const StudentHomePage = () => {
           method: "GET",
         });
         console.log("Categories response:", res.data);
-        setCategories(res.data); // categories là array
+        setCategories(res.data); 
       } catch (err) {
         message.error("Không thể tải danh mục");
         console.error(err);
@@ -39,10 +39,9 @@ const StudentHomePage = () => {
     fetchCategories();
   }, []);
 
-  const [allCourses, setAllCourses] = useState([]); // Lưu tất cả courses
-  const [filteredCourses, setFilteredCourses] = useState([]); // Courses đã filter
+  const [allCourses, setAllCourses] = useState([]); 
+  const [filteredCourses, setFilteredCourses] = useState([]); 
 
-  // Fetch tất cả courses một lần
   const fetchAllCourses = async () => {
     setLoadingCourses(true);
     setError(null);
@@ -52,7 +51,7 @@ const StudentHomePage = () => {
         method: "GET",
       });
       console.log("Courses response:", res.data);
-      const coursesData = res.data.data || res.data; // Xử lý cả 2 format
+      const coursesData = res.data.data || res.data; 
       setAllCourses(coursesData);
       setFilteredCourses(coursesData);
     } catch (err) {
@@ -64,12 +63,10 @@ const StudentHomePage = () => {
     }
   };
 
-  // Fetch tất cả courses khi component mount
   useEffect(() => {
     fetchAllCourses();
   }, []);
 
-  // Filter courses khi selectedCategory thay đổi
   useEffect(() => {
     if (!allCourses) return;
 
@@ -98,10 +95,6 @@ const StudentHomePage = () => {
     <div className="relative min-h-screen">
       <div
         className="absolute inset-0 z-0"
-        // style={{
-        //   backgroundImage:
-        //     "radial-gradient(circle at 30% 70%, rgba(173, 216, 230, 0.35), transparent 60%), radial-gradient(circle at 70% 30%, rgba(255, 182, 193, 0.4), transparent 60%)",
-        // }}
       />
       {/* Nội dung chính */}
       <div className="relative z-10 p-6">
