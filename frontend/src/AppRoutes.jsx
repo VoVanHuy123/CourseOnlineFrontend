@@ -10,6 +10,7 @@ import UpdateCoure from "./page/teacher/UpdateCoursePage";
 import DetailCoursePage from "./page/student/DetailCoursePage";
 import LessonPage from "./page/student/LessonPage";
 import PaymentReturnPage from "./page/payment/PaymentReturnPage";
+import TeacherStatsPage from "./page/teacher/TeacherStatsPage";
 
 const AppRoutes = () => (
   <Routes>
@@ -69,6 +70,15 @@ const AppRoutes = () => (
       element={
         <PrivateRoute allowedRoles={["student"]}>
           <PaymentReturnPage />
+        </PrivateRoute>
+      }
+    />
+
+    <Route
+      path="/teacher/stats"
+      element={
+        <PrivateRoute allowedRoles={["teacher"]}>
+          <TeacherStatsPage />
         </PrivateRoute>
       }
     />
