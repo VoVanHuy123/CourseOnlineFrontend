@@ -17,6 +17,7 @@ export const endpoints = {
   update_lesson: (id) => `/courses/lessons/${id}`,
   update_course: (id) => `/courses/${id}`,
   enroll: (id) => `/courses/${id}/enroll`,
+  enroll_free: (id) => `/courses/${id}/enroll-free`,
   course_detail: (id) => `/courses/${id}`,
   get_comments:"/comments/",
   create_comments:"/comments",
@@ -26,6 +27,12 @@ export const endpoints = {
   "stats_publish_rate": "/stats/published-lesson-rate",
   "stats_avg_rating": "/stats/avg-rating",
   "stats_students_completed": "/stats/students-completed-lessons"
+  get_comments: "/comments/",
+  create_comments: "/comments",
+  course_progress: (id) => `/learning/courses/${id}/progress`,
+  complete_lesson: (lessonId) => `/learning/lessons/${lessonId}/complete`,
+  uncomplete_lesson: (lessonId) => `/learning/lessons/${lessonId}/uncomplete`,
+  enrollment_status: (courseId) => `/courses/${courseId}/enrollment-status`,
 };
 // export const authApis = (token) => {
 //     return axios.create({
