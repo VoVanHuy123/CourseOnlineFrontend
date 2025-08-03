@@ -1,29 +1,32 @@
-import React, { useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Button, Drawer } from 'antd';
-const App = () => {
-  const [open, setOpen] = useState(false);
-  const showDrawer = () => {
-    setOpen(true);
-  };
-  const onClose = () => {
-    setOpen(false);
-  };
+import CommentArea from '../comment/CommentArea';
+import CreateCommentForm from '../form/CreateCommentForm';
+import { AuthContext } from '../../context/AuthContext';
+
+const CommentDrawer = ({selectedLesson,open,onClose}) => {
+  const {user} = useContext(AuthContext);
+  const [selectedLessonn, setSelectedLessonn] = useState(false);
+  const [showCreateComment,setShowCreateComment] = useState(false)
+  useEffect (()=>{
+    if(selectedLesson) setSelectedLessonn(selectedLesson)
+  },[selectedLesson])
   return (
     <>
-      <Button type="primary" onClick={showDrawer}>
-        Open
-      </Button>
       <Drawer
-        title="Basic Drawer"
+        width={600}
+        title={`Comment: ${selectedLessonn ? selectedLesson?.title : ""}`}
         closable={{ 'aria-label': 'Close Button' }}
         onClose={onClose}
         open={open}
       >
-        <p>Some contents...</p>
-        <p>Some contents...</p>
-        <p>Some contents...</p>
+        
+
+            <CommentArea lesson={selectedLessonn}/>
+          
+
       </Drawer>
     </>
   );
 };
-export default App;
+export default CommentDrawer;

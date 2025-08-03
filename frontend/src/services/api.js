@@ -26,13 +26,28 @@ export const endpoints = {
   "stats_avg_lessons": "/stats/avg-lessons-per-chapter",
   "stats_publish_rate": "/stats/published-lesson-rate",
   "stats_avg_rating": "/stats/avg-rating",
-  "stats_students_completed": "/stats/students-completed-lessons"
+  "stats_students_completed": "/stats/students-completed-lessons",
   get_comments: "/comments/",
   create_comments: "/comments",
   course_progress: (id) => `/learning/courses/${id}/progress`,
   complete_lesson: (lessonId) => `/learning/lessons/${lessonId}/complete`,
   uncomplete_lesson: (lessonId) => `/learning/lessons/${lessonId}/uncomplete`,
   enrollment_status: (courseId) => `/courses/${courseId}/enrollment-status`,
+
+  "comments":"/comments",
+  "get_reviews": "/reviews",
+  "reviews": "/reviews",
+  "un_validate_teacher":"/auth/teachers/unverified",
+  "validate_teacher":(id)=>`/auth/teachers/validate/${id}`,
+
+
+  "delete_lesson":(lesson_id) => `/courses/lesson/${lesson_id}` ,
+  "delete_chapter":(chapter_id) => `/courses/chapter/${chapter_id}`,
+  
+  "get_teacher":(teacher_id)=>`/auth/teachers/${teacher_id}`,
+  "get_student":(student_id)=>`/auth/students/${student_id}`,
+  // "get_admin":(admin_id)=>`/auth/admins/${admin_id}`,
+  "auth":"/auth"
 };
 // export const authApis = (token) => {
 //     return axios.create({

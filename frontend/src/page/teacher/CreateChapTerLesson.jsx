@@ -10,6 +10,8 @@ import CreateLessonForm from "../../components/form/CreateLessonForm";
 import UpdateChapterForm from "../../components/form/UpdateChapterForm";
 import UpdateLessonForm from "../../components/form/UpdateLessonForm";
 import CommentArea from "../../components/comment/CommentArea";
+import CommentDrawer from "../../components/drawer/CommentDrawer";
+import ReviewList from "../../components/review/ReviewList";
 // import useFetchApi from "../hooks/useFetchApi";
 
 
@@ -65,7 +67,7 @@ const CreateChapTerLesson = () => {
     setOpen(false);
   };
 
-
+// Load course ==========================================
   const loadCourse = async () => {
     try {
       const res = await fetchApi({
@@ -138,6 +140,7 @@ const CreateChapTerLesson = () => {
         });
     }
   }
+  // update lesson ======================
   const updateChapter = async (values) => {
     messageApi.open({
               key: "updateChapter",
@@ -173,6 +176,28 @@ const CreateChapTerLesson = () => {
         });
     }
   }
+
+  const handleDeleteLesson = (isDelete) => {
+  if (isDelete) {
+    setChapters(prevList =>
+      prevList.map(chapter => {
+        if (chapter.id === selectedChapterId) {
+          return {
+            ...chapter,
+            lessons: chapter.lessons.filter(lesson => lesson.id !== selectedLesson?.id)
+          };
+        }
+        return chapter;
+      })
+    );
+    setAction("create-chapter");
+    setSelectedLesson(null); // Reset bài học đang chọn nếu cần
+  }
+};
+
+
+
+  // create lesson =======================================
   const createLesson = async (values) => {
 
     const fileList = values.content_url;
@@ -354,11 +379,11 @@ const CreateChapTerLesson = () => {
     case "create-chapter":
       return <CreateChapterForm form ={form} errorMsg = {errorMsg} onFinish={createChapter} />;
     case "update-chapter":
-      return <UpdateChapterForm form ={form} errorMsg={errorMsg} onFinish={updateChapter} chapter={selectedChapter}/>;
+      return <UpdateChapterForm form ={form} errorMsg={errorMsg} onFinish={updateChapter} chapter={selectedChapter} deleted={handleDeleteChapter}/>;
     case "create-lesson":
       return <CreateLessonForm form ={form} errorMsg={errorMsg} onFinish={createLesson}/>;
     case "update-lesson":
-      return <UpdateLessonForm form ={form} errorMsg={errorMsg} onFinish={updateLesson} lesson = {selectedLesson}/>;
+      return <UpdateLessonForm form ={form} errorMsg={errorMsg} onFinish={updateLesson} lesson = {selectedLesson} deleted={handleDeleteLesson}/>;
     default:
       return null;
   }
@@ -391,6 +416,17 @@ const CreateChapTerLesson = () => {
     console.error("❌ Update failed", error.response?.data || error.message);
   }
     };
+  const handleDeleteChapter = (isDelete) => {
+  if (isDelete) {
+    setChapters(prevList =>
+      prevList.filter(chapter => chapter.id !== selectedChapterId)
+    );
+    setAction("create-chapter");
+    setSelectedChapter(null);
+    console.log(selectedChapterId)
+  }
+};
+
 const renderTitle = ()=>{
   switch (action) {
     case "create-chapter":
@@ -407,7 +443,11 @@ const renderTitle = ()=>{
 };
 useEffect(() => {
     
+  //  form.resetFields();
+   if(!selectedChapter) {
     form.resetFields();
+    setAction("create-chapter") 
+   }
 }, [selectedChapter,selectedLesson]);
   useEffect(() => {
     loadCourse();
@@ -473,7 +513,7 @@ useEffect(() => {
         {/* Cột phải - Danh sách đã tạo */}
         <Col span={8}>
           <Card className="shadow-xl" title="Danh sách chương & bài học">
-            {chapters.length === 0 ? (
+            {chapters?.length === 0 ? (
               <>
                 <p style={{ textAlign: "center", color: "#999" }}>Chưa có chương nào</p>
                 <div className="w-full mt-8" style={{ textAlign: "center" }}>
@@ -492,7 +532,7 @@ useEffect(() => {
                     setSelectedChapter(selected);
                     setAction("update-chapter");
                   }}
-                  items={chapters.map((chapter) => ({
+                  items={chapters?.map((chapter) => ({
                     key: chapter.id,
                     label: chapter.title,
                     children: (
@@ -538,16 +578,19 @@ useEffect(() => {
 
       {/* Drawer comments */}
       <Row className="mt-16  py-4 rounded-33xl">
-        <Drawer
-        title={`Comment: ${selectedLesson ? selectedLesson.title : ""}`}
-        closable={{ 'aria-label': 'Close Button' }}
-        onClose={onClose}
+      <CommentDrawer
         open={openDrawer}
-      >
-        <CommentArea lesson={selectedLesson}/>
-      </Drawer>
-      
+        onClose={() => setOpenDrawer(false)}
+        selectedLesson={selectedLesson}
+      />
       </Row>
+      <Row>
+            <div className="border shadow-xl mb-12 p-4 w-full rounded-md">
+
+              <ReviewList courseId={id}/>
+            </div>
+      </Row>
+
     </>
   );
 };
