@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button, Card, Col, Collapse, Form, Input, List, Row, Spin, message,Space,Modal, Drawer } from "antd";
+import { CommentOutlined, HistoryOutlined } from '@ant-design/icons';
 import useFetchApi from "../../hooks/useFetchApi";
 import TextArea from "antd/es/input/TextArea";
 import { endpoints } from "../../services/api";
@@ -541,18 +542,31 @@ useEffect(() => {
                           dataSource={chapter.lessons || []}
                           renderItem={(lesson) => (
                             <List.Item
-                              onClick={() => {setSelectedLesson(lesson);setAction("update-lesson");}}
+                              onClick={() => {
+                                setSelectedLesson(lesson);
+                                setAction("update-lesson");
+                              }}
                               style={{ cursor: "pointer", padding: 10 }}
-                              className="rounded-lg shadow-sm border"
-                              actions={[
+                              className={`rounded-lg shadow-sm border ${!lesson.is_published ? "bg-[#AEC8A4]":""} `}
+                              
+                              actions={
+                                lesson.is_published ? 
+                                [
+                                
                                 <Button type="primary" onClick={(e) => {
                                   e.stopPropagation(); // không để nó trigger List.Item click
                                   setSelectedLesson(lesson)
                                   showDrawer();
                                 }}>
-                                  Comment
+                                  <CommentOutlined />
+                                </Button>,
+                                <Button onClick={()=>{
+                                  navigate(`/lessons/${lesson?.id}/history`)
+                                }}>
+                                  <HistoryOutlined />
                                 </Button>
-                              ]}
+                              ]:[]
+                            }
                             >
                               {lesson.title}
                             </List.Item>

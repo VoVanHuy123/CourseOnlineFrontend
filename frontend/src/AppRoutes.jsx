@@ -12,6 +12,7 @@ import LessonPage from "./page/student/LessonPage";
 import PaymentReturnPage from "./page/payment/PaymentReturnPage";
 import TeacherStatsPage from "./page/teacher/TeacherStatsPage";
 import UserProfilePage from "./page/UserProfilePage";
+import LessonHistoryList from "./components/list/LessonHistoryList";
 
 const AppRoutes = () => (
   <Routes>
@@ -90,6 +91,12 @@ const AppRoutes = () => (
       </PrivateRoute>
       } 
       />
+      <Route path="/lessons/:lessonId/history" 
+      element={
+        <PrivateRoute allowedRoles={["teacher"]}>
+      <LessonHistoryList />
+      </PrivateRoute>
+      } />
 
   </Routes>
 );
