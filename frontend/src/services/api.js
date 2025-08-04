@@ -18,8 +18,8 @@ export const endpoints = {
   update_course: (id) => `/courses/${id}`,
   enroll: (id) => `/courses/${id}/enroll`,
   course_detail: (id) => `/courses/${id}`,
-  get_comments:"/comments/",
-  create_comments:"/comments"
+  get_comments: "/comments/",
+  create_comments: "/comments"
 };
 // export const authApis = (token) => {
 //     return axios.create({

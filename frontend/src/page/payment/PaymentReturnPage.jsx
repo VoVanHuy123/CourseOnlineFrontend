@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { Result, Button, Spin, Card, Descriptions } from "antd";
 import { CheckCircleOutlined, CloseCircleOutlined, LoadingOutlined } from "@ant-design/icons";
+import { endpoints } from "../../services/api";
+import useFetchApi from "../../hooks/useFetchApi";
 
 const PaymentReturnPage = () => {
   const [searchParams] = useSearchParams();
@@ -9,15 +11,17 @@ const PaymentReturnPage = () => {
   const [loading, setLoading] = useState(true);
   const [paymentResult, setPaymentResult] = useState(null);
   const [paymentInfo, setPaymentInfo] = useState({});
+  const [courseId, setCourseId] = useState(null);
+  const { fetchApi } = useFetchApi();
 
   useEffect(() => {
-    const processPaymentReturn = () => {
+    const processPaymentReturn = async () => {
       setLoading(true);
-      
+
       // Get all URL parameters
       const params = Object.fromEntries(searchParams.entries());
       console.log("Payment return parameters:", params);
-      
+
       // Determine payment method based on parameters
       let paymentMethod = "unknown";
       let isSuccess = false;
@@ -61,11 +65,26 @@ const PaymentReturnPage = () => {
         return;
       }
 
+      // Lấy course_id từ order_id nếu thanh toán thành công
+      if (isSuccess && transactionInfo.orderId) {
+        try {
+          const enrollmentRes = await fetchApi({
+            url: `/courses/enrollment/order/${transactionInfo.orderId}`,
+            method: "GET",
+          });
+          if (enrollmentRes.data && enrollmentRes.data.course_id) {
+            setCourseId(enrollmentRes.data.course_id);
+          }
+        } catch (err) {
+          console.error("Không thể lấy thông tin enrollment:", err);
+        }
+      }
+
       // Set payment result
       setPaymentResult({
         success: isSuccess,
         title: isSuccess ? "Thanh toán thành công!" : "Thanh toán thất bại",
-        message: isSuccess 
+        message: isSuccess
           ? `Bạn đã thanh toán thành công qua ${paymentMethod.toUpperCase()}. Bạn có thể bắt đầu học ngay bây giờ.`
           : `Thanh toán qua ${paymentMethod.toUpperCase()} không thành công. ${transactionInfo.message}`
       });
@@ -125,10 +144,8 @@ const PaymentReturnPage = () => {
   };
 
   const handleBackToCourse = () => {
-    if (paymentInfo.orderId) {
-      // You might want to navigate to the specific course
-      // For now, navigate to home
-      navigate("/");
+    if (courseId) {
+      navigate(`/courses/${courseId}/lessons`);
     } else {
       navigate("/");
     }
@@ -138,9 +155,9 @@ const PaymentReturnPage = () => {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <Card className="text-center p-8">
-          <Spin 
-            indicator={<LoadingOutlined style={{ fontSize: 48 }} spin />} 
-            size="large" 
+          <Spin
+            indicator={<LoadingOutlined style={{ fontSize: 48 }} spin />}
+            size="large"
           />
           <div className="mt-4 text-lg">Đang xử lý kết quả thanh toán...</div>
         </Card>
@@ -163,12 +180,12 @@ const PaymentReturnPage = () => {
             title={paymentResult?.title}
             subTitle={paymentResult?.message}
             extra={[
-              <Button 
-                type="primary" 
-                key="course" 
+              <Button
+                type="primary"
+                key="course"
                 onClick={handleBackToCourse}
-                disabled={!paymentResult?.success}
-                className={paymentResult?.success ? "bg-blue-500" : ""}
+                disabled={!paymentResult?.success || !courseId}
+                className={paymentResult?.success && courseId ? "bg-blue-500" : ""}
               >
                 {paymentResult?.success ? "Bắt đầu học" : "Thử lại"}
               </Button>,
@@ -177,7 +194,7 @@ const PaymentReturnPage = () => {
               </Button>
             ]}
           />
-          
+
           {/* Payment Details */}
           <div className="mt-8 border-t pt-6">
             <h3 className="text-lg font-semibold mb-4">Chi tiết giao dịch</h3>
