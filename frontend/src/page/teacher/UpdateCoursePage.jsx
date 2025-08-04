@@ -42,7 +42,7 @@ const UpdateCoure = () => {
     if (values.image?.length && values.image[0]?.originFileObj ) {
       formData.append("image", values.image[0].originFileObj);
     }else {
-      formData.append("null_image", null);
+      formData.append("null_image", "");
     }
     // if (values.image?.length && values.image[0]?.originFileObj ==0) {
     //   console.log("vào")
@@ -71,7 +71,7 @@ for (let [key, value] of formData.entries()) {
       await messageApi.open({
         type: "loading",
         content: "Đang cập nhật khóa học...",
-        duration: 50,
+        duration: 3,
       });
 
       const res = await fetchApi({

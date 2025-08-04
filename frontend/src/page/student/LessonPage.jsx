@@ -1,14 +1,28 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Skeleton, message } from "antd";
+import { FloatButton, Skeleton, message } from "antd";
 import { endpoints } from "../../services/api";
 import useFetchApi from "../../hooks/useFetchApi";
 import courseCover from "../../assets/img/course-cover.jpg";
+
+import { CustomerServiceOutlined, WechatOutlined } from '@ant-design/icons';
+
+
+import CommentDrawer from "../../components/drawer/CommentDrawer";
 
 const LessonPage = () => {
   const { courseId, lessonId } = useParams();
   const { fetchApi } = useFetchApi();
   const navigate = useNavigate();
+
+  //comment drawer
+  const [open, setOpen] = useState(false);
+  const showDrawer = () => {
+    setOpen(true);
+  };
+  const onClose = () => {
+    setOpen(false);
+  };
 
   const [course, setCourse] = useState(null);
   const [chapters, setChapters] = useState([]);
@@ -565,6 +579,29 @@ const LessonPage = () => {
             )}
           </div>
         </div>
+      </div>
+
+      {/* Comment Drawer */}
+      <div className="">
+        <CommentDrawer selectedLesson={lesson} open={open} onClose={()=>{onClose()}}/>
+      </div>
+      <div className="">
+        <FloatButton
+         onClick={showDrawer}
+        icon={
+          <div className="flex flex-row w-full">
+            <WechatOutlined className="text-xl"/>
+          </div>
+        }
+        shape="square"
+        type="primary"
+        style={{
+          insetInlineEnd: 50,
+          width: 120, // 👈 chỉnh width theo ý bạn
+          height: 40, // 👈 optional, chỉnh chiều cao
+          padding: '0 12px',
+        }}
+      />
       </div>
     </div>
   );

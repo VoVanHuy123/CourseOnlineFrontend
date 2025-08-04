@@ -453,6 +453,7 @@ import { Skeleton, message, Modal, Radio, Button, Space } from "antd";
 import { endpoints } from "../../services/api";
 import useFetchApi from "../../hooks/useFetchApi";
 import courseCover from "../../assets/img/course-cover.jpg";
+import ReviewList from "../../components/review/ReviewList"
 
 const DetailCoursePage = () => {
   const { id } = useParams();
@@ -578,7 +579,8 @@ const DetailCoursePage = () => {
   if (loading || !course) return <Skeleton active />;
 
   return (
-    <div className="relative min-h-screen bg-white">
+    <>
+    <div className="relative min-h-screen bg-white rounded-xl">
       {/* Header giống LessonPage */}
       <div className="flex items-center justify-between px-6 py-3 bg-blue-50 rounded-t-xl border-b">
         <div className="flex items-center gap-4">
@@ -923,7 +925,13 @@ const DetailCoursePage = () => {
           </div>
         </div>
       </Modal>
+
     </div>
+    <div className="mt-8">
+      <ReviewList courseId={id}/>
+
+    </div>
+    </>
   );
 };
 

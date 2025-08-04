@@ -60,7 +60,7 @@ import renderDynamicFormItems from "./DynamicFormItems";
         )}
         <Form layout="vertical" form={form} onFinish={onFinish}>
           {renderDynamicFormItems(lessonFields)}
-          <Button type="primary" htmlType="submit">Tạo bài học</Button>
+          <Button className="w-full" type="primary" htmlType="submit">Tạo bài học</Button>
         </Form>
       </>
     );

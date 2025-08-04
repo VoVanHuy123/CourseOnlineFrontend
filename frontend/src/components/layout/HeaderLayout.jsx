@@ -1,14 +1,15 @@
-// components/layout/HeaderLayout.jsx
 import React, { useContext } from "react";
-import { Layout, Menu } from "antd";
+import { Avatar, Layout, Menu } from "antd";
 import { useNavigate } from "react-router-dom";
-import { AuthContext } from "../../context/AuthContext"
+import { AuthContext } from "../../context/AuthContext";
+import defaultImage from "../../assets/img/avatar.png";
+
 const { Header } = Layout;
 
 const HeaderLayout = () => {
-    const navigate = useNavigate();
-    const { user, logout,isAuthenticated } = useContext(AuthContext);
-
+  const navigate = useNavigate();
+  const { user, logout, isAuthenticated } = useContext(AuthContext);
+  console.log(user)
   const handleClick = ({ key }) => {
     if (key === "logout") {
       logout();
@@ -19,7 +20,6 @@ const HeaderLayout = () => {
   };
 
   const nav = isAuthenticated
-  // console.log(isAuthenticated)
     ? [
         { label: "Trang chủ", key: "/" },
         { label: "Đăng xuất", key: "logout" },
@@ -30,29 +30,39 @@ const HeaderLayout = () => {
         { label: "Đăng ký", key: "/register" },
       ];
 
-          
   return (
-    <Header style={{ color: "white", fontSize: 20 }}>
-      <div className="min-h-screen w-full bg-[#0f172a] relative">
-          {/* Blue Radial Glow Background */}
-          <div
-            className="absolute inset-0 z-0"
-            style={{
-              backgroundImage: `radial-gradient(circle 600px at 50% 50%, rgba(59,130,246,0.3), transparent)`,
-            }}
-          />
-            {/* Your Content/Components */}
-        
-      <div style={{ float: "left", color: "white" }}>
+    <Header
+      style={{
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        padding: "0 24px",
+        background: "#0f172a",
+      }}
+    >
+      {/* Left: Logo or Title */}
+      <div style={{ color: "white", fontSize: "20px", fontWeight: "bold" }}>
         Course Online
       </div>
-      <Menu
-        theme="dark"
-        mode="horizontal"
-        style={{ float: "right" }}
-        onClick={handleClick}
-        items={nav}
-      />
+
+      {/* Right: Menu + Avatar */}
+      <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+        <Menu
+          theme="dark"
+          mode="horizontal"
+          onClick={handleClick}
+          items={nav}
+          style={{ background: "transparent", borderBottom: "none" }}
+        />
+        {isAuthenticated && (
+          <Avatar size={40} src={user?.avatar || defaultImage} 
+            onClick={()=>{
+              navigate(`/profile/${user.role}/${user.id}`, {
+                state: { allowEdit: true }
+              });
+            }}
+          />
+        )}
       </div>
     </Header>
   );

@@ -1,8 +1,11 @@
 import { Button, Form } from "antd";
 import renderDynamicFormItems from "./DynamicFormItems";
-
+import useFetchApi from "../../hooks/useFetchApi";
+import { endpoints } from "../../services/api";
+import { useEffect } from "react";
  
- const UpdateLessonForm = ({errorMsg,form,onFinish,lesson}) => {
+ const UpdateLessonForm = ({errorMsg,form,onFinish,lesson,deleted}) => {
+  const {fetchApi} = useFetchApi();
     const lessonFields = [
   {
     name: "title",
@@ -65,9 +68,35 @@ import renderDynamicFormItems from "./DynamicFormItems";
     // onChange: handleUploadChange
   },
 ];
+
+useEffect(() => {
+  if (lesson) {
+    form.setFieldsValue({
+      title: lesson.title,
+      description: lesson.description,
+      order: lesson.order,
+      type: lesson.type,
+      is_published: lesson.is_published,
+      // content_url: lesson.content_url,
+
+    });
+  }
+}, [lesson]);
+
+const onDeleted = async () => {
+  const res = await fetchApi({
+    method : "DELETE",
+    url:endpoints['delete_lesson'](lesson?.id)
+  })
+  if(res.status === 200 ) {
+    if(deleted) deleted(true);
+    form.resetFields();
+  }
+
+}
     return (
       <>
-        <h3 className="text-lg font-bold mb-4">Chập nhật bài học</h3>
+        <h3 className="text-lg font-bold mb-4">Cập nhật bài học</h3>
         {errorMsg && (
           <div style={{ color: "red", marginBottom: 16 }}>
              {errorMsg}
@@ -102,9 +131,11 @@ import renderDynamicFormItems from "./DynamicFormItems";
       </a>
     )}
   </>
-)}
-
-          <Button type="primary" htmlType="submit">Cập nhật bài học</Button>
+  )}
+          <div className="flex flex-row gap-4 mt-8">
+            <Button className="w-full" type="primary" htmlType="submit">Cập nhật bài học</Button>
+            <Button onClick={onDeleted} className="w-full" color="danger" variant="solid">xóa bài học</Button>
+          </div>
         </Form>
       </>
     );
