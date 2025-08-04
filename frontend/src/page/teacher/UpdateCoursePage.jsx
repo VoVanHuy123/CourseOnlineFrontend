@@ -42,7 +42,7 @@ const UpdateCoure = () => {
     if (values.image?.length && values.image[0]?.originFileObj ) {
       formData.append("image", values.image[0].originFileObj);
     }else {
-      formData.append("null_image", null);
+      formData.append("null_image", "");
     }
     // if (values.image?.length && values.image[0]?.originFileObj ==0) {
     //   console.log("vào")
@@ -65,33 +65,33 @@ for (let [key, value] of formData.entries()) {
   }
 }
 
-    // try {
-    //   setLoading(true);
+    try {
+      setLoading(true);
 
-    //   await messageApi.open({
-    //     type: "loading",
-    //     content: "Đang cập nhật khóa học...",
-    //     duration: 50,
-    //   });
+      await messageApi.open({
+        type: "loading",
+        content: "Đang cập nhật khóa học...",
+        duration: 3,
+      });
 
-    //   const res = await fetchApi({
-    //     method: "PATCH",
-    //     url: endpoints["update_course"](id),
-    //     data: formData,
-    //   });
+      const res = await fetchApi({
+        method: "PATCH",
+        url: endpoints["update_course"](id),
+        data: formData,
+      });
 
-    //   if ( res.status === 200) {
-    //     messageApi.success("Cập nhật khóa học thành công!");
-    //     form.resetFields();
-    //   } else {
-    //     messageApi.error(res.error?.msg || "Cập nhật khóa học thất bại.");
-    //   }
-    // } catch (error) {
-    //   console.error(error);
-    //   messageApi.error("Cập nhật khóa học thất bại.");
-    // } finally {
-    //   setLoading(false);
-    // }
+      if ( res.status === 200) {
+        messageApi.success("Cập nhật khóa học thành công!");
+        form.resetFields();
+      } else {
+        messageApi.error(res.error?.msg || "Cập nhật khóa học thất bại.");
+      }
+    } catch (error) {
+      console.error(error);
+      messageApi.error("Cập nhật khóa học thất bại.");
+    } finally {
+      setLoading(false);
+    }
   };
   useEffect(()=>{
     loadCourse();

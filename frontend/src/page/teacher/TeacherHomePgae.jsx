@@ -61,7 +61,7 @@ const TeacherHomePage = () => {
     loadCoursePublic();
     loadCoursenotPublic();
 }, []);
-
+  if(publicCourses?.length <=0) return <><div className="">bạn chưa có khóa học nào</div></>
   return (
     <div style={{ padding: "24px" }}>
       <div className="">

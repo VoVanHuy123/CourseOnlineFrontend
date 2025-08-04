@@ -1,6 +1,6 @@
 import React, { useState, useContext } from "react";
 import { Button, Drawer,FloatButton, Menu  } from "antd";
-import { BookFilled, CustomerServiceOutlined,HomeFilled,MailOutlined,RightCircleOutlined } from '@ant-design/icons';
+import { BarChartOutlined, BookFilled, CustomerServiceOutlined,HomeFilled,MailOutlined,RightCircleOutlined } from '@ant-design/icons';
 import { AuthContext } from "../../context/AuthContext"; // sửa path tùy cấu trúc dự án
 import { useNavigate } from "react-router-dom";
 
@@ -40,6 +40,12 @@ const TeacherDrawer = () => {
       label: 'Tạo khóa học',
       icon: <BookFilled />,
       url:"/create"
+    },
+    { 
+      key: '3', 
+      label: 'Thống kê',
+      icon: < BarChartOutlined/>,
+      url:"/teacher/stats"
     },
     { key: '6', label: 'Option 6' },
   ];
