@@ -68,17 +68,21 @@ const StudentHomePage = () => {
   }, []);
 
   useEffect(() => {
-    if (!allCourses) return;
+  if (!allCourses) return;
 
-    if (selectedCategory === null) {
-      setFilteredCourses(allCourses);
-    } else {
-      const filtered = allCourses.filter(
-        (course) => course.category_id === selectedCategory
-      );
-      setFilteredCourses(filtered);
-    }
-  }, [selectedCategory, allCourses]);
+  // Lọc khóa học đã phát hành (is_public = true) trước
+  const publicCourses = allCourses.filter((course) => course.is_public);
+
+  if (selectedCategory === null) {
+    setFilteredCourses(publicCourses);
+  } else {
+    const filtered = publicCourses.filter(
+      (course) => course.category_id === selectedCategory
+    );
+    setFilteredCourses(filtered);
+  }
+}, [selectedCategory, allCourses]);
+
 
   if (isInitialLoad && (loadingCategories || loadingCourses))
     return <Skeleton active />;
@@ -147,14 +151,20 @@ const StudentHomePage = () => {
                     navigate(`/courses/${course.id}`);
                   }}
                 >
+                  {console.log("Course image:", course.image)}
                   <img
-                    src={course.image || courseCover}
+                    src={course?.image || courseCover}
                     alt={course.title}
                     className="w-full h-40 object-cover rounded-t-xl"
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = courseCover;
+                    }}
                   />
+                  
                   <div className="p-4">
                     <h4 className="font-semibold text-lg truncate">
-                      {course.title}
+                      {course?.title}
                     </h4>
                     <p className="text-gray-500 text-sm mt-1 line-clamp-2">
                       {course.description}
