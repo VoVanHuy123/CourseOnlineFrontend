@@ -10,6 +10,8 @@ import BaseLayout from "../components/layout/BaseLayout";
 import bgImage from "../assets/img/authBackground.jpg";
 import useFetchApi from "../hooks/useFetchApi";
 import { endpoints } from "../services/api";
+import { useNavigate } from "react-router-dom";
+
 
 const { Option } = Select;
 
@@ -19,6 +21,7 @@ const RegisterPage = () => {
   // const [loading, setLoading] = useState(false);
   const [role, setRole] = useState("student");
   const {loading,fetchApi} = useFetchApi()
+  const navigate = useNavigate();
 
   const onFinish = async (values) => {
     messageApi.open({
@@ -41,7 +44,11 @@ const RegisterPage = () => {
         content:"Gửi yêu cầu thành công",
         duration:5
       })
+      setTimeout(() => {
+        navigate("/"); // điều hướng sau 100ms để context cập nhật
+      }, 100);
       form.resetFields();
+      re
     } else {
       setErr(response.data.msg)
       message.error(response.error?.msg || "Đăng ký thất bại");
@@ -60,6 +67,7 @@ const RegisterPage = () => {
   { label: "Họ và tên lót", name: "first_name", rules: [{ required: true }], type: "input" },
   { label: "Tên", name: "last_name", rules: [{ required: true }], type: "input" },
   { label: "Số điện thoại", name: "phonenumber", rules: [{ required: true }], type: "input" },
+  { label: "Email", name: "email", rules: [{ required: true }], type: "email" },
   
   ]
   const studentFields = [

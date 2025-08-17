@@ -108,6 +108,7 @@ const UpdateCourseForm = ({form,errorMsg,onFinish,course})=>{
             
                     <Form.Item>
                       <Button
+                        classNames="w-full"
                         type="primary"
                         htmlType="submit"
                         loading={loading}

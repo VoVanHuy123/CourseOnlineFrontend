@@ -105,9 +105,9 @@ const StudentHomePage = () => {
         <h2 className="text-2xl font-bold mb-6">
           Chào mừng, {user?.name || "Học viên"}!
         </h2>
-        <div className="flex gap-2 overflow-x-auto pb-2 mb-6 relative z-20">
+        <div className="flex gap-2 overflow-x-auto pb-2 mb-6 p-4 relative z-20">
           <button
-            className={`px-4 py-2 rounded-full border font-semibold transition whitespace-nowrap
+            className={`px-4 py-2  rounded-full border font-semibold transition whitespace-nowrap
               ${
                 selectedCategory === null
                   ? "bg-blue-500 text-white border-blue-500 shadow"

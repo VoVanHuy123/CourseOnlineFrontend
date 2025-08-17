@@ -10,6 +10,9 @@ import UpdateCoure from "./page/teacher/UpdateCoursePage";
 import DetailCoursePage from "./page/student/DetailCoursePage";
 import LessonPage from "./page/student/LessonPage";
 import PaymentReturnPage from "./page/payment/PaymentReturnPage";
+import TeacherStatsPage from "./page/teacher/TeacherStatsPage";
+import UserProfilePage from "./page/UserProfilePage";
+import LessonHistoryList from "./components/list/LessonHistoryList";
 
 const AppRoutes = () => (
   <Routes>
@@ -17,9 +20,9 @@ const AppRoutes = () => (
     <Route path="/register" element={<RegisterPage />} />
     <Route path="/"
       element={
-        <PrivateRoute allowedRoles={["teacher", "student", "admin"]}>
+        // <PrivateRoute allowedRoles={["teacher", "student", "admin",]}>
           <HomePage />
-        </PrivateRoute>
+        // </PrivateRoute>
       }
     />
     <Route path="/create"
@@ -48,9 +51,9 @@ const AppRoutes = () => (
     <Route
       path="/courses/:id"
       element={
-        <PrivateRoute allowedRoles={["student"]}>
+        // <PrivateRoute allowedRoles={["student"]}>
           <DetailCoursePage />
-        </PrivateRoute>
+        // </PrivateRoute>
       }
     />
 
@@ -72,6 +75,29 @@ const AppRoutes = () => (
         </PrivateRoute>
       }
     />
+
+    <Route
+      path="/teacher/stats"
+      element={
+        <PrivateRoute allowedRoles={["teacher"]}>
+          <TeacherStatsPage />
+        </PrivateRoute>
+      }
+    />
+    <Route path="/profile/:role/:id" 
+      element={
+        <PrivateRoute allowedRoles={["student","admin","teacher"]}>
+      <UserProfilePage />
+      </PrivateRoute>
+      } 
+      />
+      <Route path="/lessons/:lessonId/history" 
+      element={
+        <PrivateRoute allowedRoles={["teacher"]}>
+      <LessonHistoryList />
+      </PrivateRoute>
+      } />
+
   </Routes>
 );
 

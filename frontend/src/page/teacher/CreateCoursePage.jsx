@@ -13,10 +13,10 @@ const { TextArea } = Input;
 const CreateCourse = () => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
-  
+
   const { fetchApi } = useFetchApi();
   const { user } = useContext(AuthContext);
-  const [messageApi, contextHolder] = message.useMessage(); 
+  const [messageApi, contextHolder] = message.useMessage();
 
 
 
@@ -55,9 +55,10 @@ const CreateCourse = () => {
         form.resetFields();
       } else {
         messageApi.error(res.error?.msg || "Tạo khóa học thất bại.");
+        console.log(res.error);
       }
     } catch (error) {
-      console.error(error);
+      console.error(error.msg);
       messageApi.error("Tạo khóa học thất bại.");
     } finally {
       setLoading(false);
@@ -67,7 +68,7 @@ const CreateCourse = () => {
   return (
     <div className="max-w-2xl mx-auto bg-white p-6 rounded-2xl shadow-2xl">
       {contextHolder}
-      <CreateCourseForm form = {form} onFinish={onFinish}/>
+      <CreateCourseForm form={form} onFinish={onFinish} />
     </div>
   );
 };

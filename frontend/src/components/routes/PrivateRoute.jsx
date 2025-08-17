@@ -8,12 +8,14 @@ const PrivateRoute = ({ children, allowedRoles }) => {
   if (loading) {
   return <div>Loading...</div>; // hoặc spinner đẹp hơn
 }
-  console.log(isAuthenticated)
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
-
+  if(user.role === "teacher" && user.is_validate === false){
+  return <Navigate to="/login" replace />;
+}
   if (allowedRoles && !allowedRoles.includes(user?.role)) {
+    console.log("vaooooooooooooooooooooooo")
     return <Navigate to="/" replace />;
   }
 

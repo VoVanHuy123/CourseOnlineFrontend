@@ -18,7 +18,8 @@ const CreateChapterForm = ({ errorMsg, form, onFinish }) => {
         <h3 className="text-lg font-bold mb-4">Tạo chương mới</h3>
         <Form layout="vertical" form={form} onFinish={onFinish}>
           {renderDynamicFormItems(chapterFields)}
-          <Button type="primary" htmlType="submit">Tạo chương</Button>
+            <Button className="w-full" type="primary" htmlType="submit">Tạo chương</Button>
+
         </Form>
       </>
     );
