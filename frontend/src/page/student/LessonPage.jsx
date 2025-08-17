@@ -3,10 +3,10 @@ import { useParams, useNavigate } from "react-router-dom";
 import { FloatButton, Skeleton, message } from "antd";
 import { endpoints } from "../../services/api";
 import useFetchApi from "../../hooks/useFetchApi";
+import useVideoProtection from "../../hooks/useVideoProtection";
 import courseCover from "../../assets/img/course-cover.jpg";
 
-import { CustomerServiceOutlined, WechatOutlined } from '@ant-design/icons';
-
+import { CustomerServiceOutlined, WechatOutlined } from "@ant-design/icons";
 
 import CommentDrawer from "../../components/drawer/CommentDrawer";
 
@@ -14,6 +14,9 @@ const LessonPage = () => {
   const { courseId, lessonId } = useParams();
   const { fetchApi } = useFetchApi();
   const navigate = useNavigate();
+
+  // Sử dụng hook bảo vệ video
+  useVideoProtection();
 
   //comment drawer
   const [open, setOpen] = useState(false);
@@ -196,23 +199,25 @@ const LessonPage = () => {
           </div>
         </div>
         <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
-            <div className="w-24 h-2 bg-gray-200 rounded">
-              <div
-                className="h-2 bg-blue-400 rounded"
-                style={{
-                  width: courseProgress
-                    ? `${courseProgress.progress || 0}%`
-                    : "0%",
-                }}
-              />
+          {enrollmentStatus?.is_enrolled && (
+            <div className="flex items-center gap-2">
+              <div className="w-24 h-2 bg-gray-200 rounded">
+                <div
+                  className="h-2 bg-blue-400 rounded"
+                  style={{
+                    width: courseProgress
+                      ? `${courseProgress.progress || 0}%`
+                      : "0%",
+                  }}
+                />
+              </div>
+              <span className="text-blue-500 font-semibold text-sm">
+                {courseProgress
+                  ? `${Math.round(courseProgress.progress || 0)}%`
+                  : "0%"}
+              </span>
             </div>
-            <span className="text-blue-500 font-semibold text-sm">
-              {courseProgress
-                ? `${Math.round(courseProgress.progress || 0)}%`
-                : "0%"}
-            </span>
-          </div>
+          )}
         </div>
       </div>
 
@@ -221,203 +226,256 @@ const LessonPage = () => {
         {/* Left: Video and info */}
         <div className="flex-1">
           <div className="bg-blue-50 rounded-xl w-full mb-6">
-            {/* Hiển thị nội dung theo loại */}
-            {lesson.type === "Type.VIDEO" && lesson.content_url ? (
-              <div className="aspect-video">
-                <video
-                  src={lesson.content_url}
-                  controls
-                  className="w-full h-full rounded-xl"
-                />
-              </div>
-            ) : lesson.type === "Type.TEXT" && lesson.content ? (
-              <div className="p-6 min-h-[300px]">
-                <div className="bg-white rounded-lg p-6 shadow-sm">
-                  <h3 className="text-lg font-semibold mb-4">
-                    Nội dung bài học
-                  </h3>
-                  <div className="prose max-w-none">
-                    <div dangerouslySetInnerHTML={{ __html: lesson.content }} />
-                  </div>
-                </div>
-              </div>
-            ) : lesson.type === "Type.FILE" && lesson.content_url ? (
-              <div className="p-6 min-h-[300px] flex items-center justify-center">
-                <div className="bg-white rounded-lg p-8 shadow-sm text-center">
+            {/* Kiểm tra đăng ký khóa học */}
+            {!enrollmentStatus?.is_enrolled ? (
+              <div className="aspect-video flex items-center justify-center">
+                <div className="flex flex-col items-center justify-center p-8">
                   <div className="mb-4">
-                    <svg
-                      width="64"
-                      height="64"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      className="mx-auto"
-                    >
+                    <svg width="64" height="64" fill="none" viewBox="0 0 24 24">
                       <path
-                        d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z"
-                        stroke="#3b82f6"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                      <polyline
-                        points="14,2 14,8 20,8"
-                        stroke="#3b82f6"
+                        d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"
+                        stroke="#ef4444"
                         strokeWidth="2"
                         strokeLinecap="round"
                         strokeLinejoin="round"
                       />
                     </svg>
                   </div>
-                  <h3 className="text-lg font-semibold mb-2">
-                    Tài liệu bài học
+                  <h3 className="text-xl font-semibold text-gray-800 mb-2">
+                    {course?.price > 0
+                      ? "Khóa học trả phí"
+                      : "Khóa học miễn phí"}
                   </h3>
-                  <p className="text-gray-600 mb-4">
-                    Bấm vào nút bên dưới để tải xuống tài liệu
+                  <p className="text-gray-600 mb-4 text-center max-w-md">
+                    Bạn cần đăng ký khóa học này để xem nội dung bài học.
+                    {course?.price > 0
+                      ? ""
+                      : " Khóa học này hoàn toàn miễn phí!"}
                   </p>
-                  <a
-                    href={lesson.content_url}
-                    download
-                    className="inline-flex items-center gap-2 px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
+                  <button
+                    onClick={() => navigate(`/courses/${courseId}`)}
+                    className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
                   >
+                    Đăng ký ngay
+                  </button>
+                </div>
+              </div>
+            ) : (
+              /* Hiển thị nội dung theo loại */
+              <>
+                {lesson.type === "Type.VIDEO" && lesson.content_url ? (
+                  <div className="aspect-video video-protected">
+                    <video
+                      src={lesson.content_url}
+                      controls
+                      className="w-full h-full rounded-xl"
+                      controlsList="nodownload"
+                      onContextMenu={(e) => e.preventDefault()}
+                    />
+                  </div>
+                ) : lesson.type === "Type.TEXT" && lesson.content ? (
+                  <div className="p-6 min-h-[300px]">
+                    <div className="bg-white rounded-lg p-6 shadow-sm">
+                      <h3 className="text-lg font-semibold mb-4">
+                        Nội dung bài học
+                      </h3>
+                      <div className="prose max-w-none">
+                        <div
+                          dangerouslySetInnerHTML={{ __html: lesson.content }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ) : lesson.type === "Type.FILE" && lesson.content_url ? (
+                  <div className="p-6 min-h-[300px] flex items-center justify-center">
+                    <div className="bg-white rounded-lg p-8 shadow-sm text-center">
+                      <div className="mb-4">
+                        <svg
+                          width="64"
+                          height="64"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          className="mx-auto"
+                        >
+                          <path
+                            d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z"
+                            stroke="#3b82f6"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                          <polyline
+                            points="14,2 14,8 20,8"
+                            stroke="#3b82f6"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                      </div>
+                      <h3 className="text-lg font-semibold mb-2">
+                        Tài liệu bài học
+                      </h3>
+                      <p className="text-gray-600 mb-4">
+                        Bấm vào nút bên dưới để tải xuống tài liệu
+                      </p>
+                      <a
+                        href={lesson.content_url}
+                        download
+                        className="inline-flex items-center gap-2 px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
+                      >
+                        <svg
+                          width="20"
+                          height="20"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                        Tải xuống tài liệu
+                      </a>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="aspect-video flex items-center justify-center">
+                    <div className="flex flex-col items-center justify-center">
+                      <svg
+                        width="64"
+                        height="64"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle cx="12" cy="12" r="12" fill="#e0e7ef" />
+                        <polygon points="10,8 16,12 10,16" fill="#94a3b8" />
+                      </svg>
+                      <p className="mt-4 text-gray-500">
+                        Chưa có nội dung bài học
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+          {/* Complete lesson button - chỉ hiển thị khi đã đăng ký */}
+          {enrollmentStatus?.is_enrolled && (
+            <div className="flex justify-center mt-6 mb-4">
+              <button
+                onClick={handleToggleComplete}
+                className={`px-8 py-3 rounded-lg font-semibold transition flex items-center gap-2 ${
+                  isCompleted
+                    ? "bg-green-500 text-white hover:bg-green-600"
+                    : "bg-blue-500 text-white hover:bg-blue-600"
+                }`}
+              >
+                {isCompleted ? (
+                  <>
                     <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
                       <path
-                        d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"
+                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
                         stroke="currentColor"
                         strokeWidth="2"
                         strokeLinecap="round"
                         strokeLinejoin="round"
                       />
                     </svg>
-                    Tải xuống tài liệu
-                  </a>
-                </div>
-              </div>
-            ) : (
-              <div className="aspect-video flex items-center justify-center">
-                <div className="flex flex-col items-center justify-center">
-                  <svg width="64" height="64" fill="none" viewBox="0 0 24 24">
-                    <circle cx="12" cy="12" r="12" fill="#e0e7ef" />
-                    <polygon points="10,8 16,12 10,16" fill="#94a3b8" />
-                  </svg>
-                  <p className="mt-4 text-gray-500">Chưa có nội dung bài học</p>
-                </div>
-              </div>
-            )}
-          </div>
-          {/* Complete lesson button */}
-          <div className="flex justify-center mt-6 mb-4">
-            <button
-              onClick={handleToggleComplete}
-              disabled={!enrollmentStatus?.is_enrolled}
-              className={`px-8 py-3 rounded-lg font-semibold transition flex items-center gap-2 ${
-                isCompleted
-                  ? "bg-green-500 text-white hover:bg-green-600"
-                  : "bg-blue-500 text-white hover:bg-blue-600"
-              } ${
-                !enrollmentStatus?.is_enrolled
-                  ? "bg-gray-300 text-gray-400 cursor-not-allowed"
-                  : ""
-              }`}
-            >
-              {isCompleted ? (
-                <>
-                  <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
-                    <path
-                      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                  Đã hoàn thành
-                </>
-              ) : (
-                <>
-                  <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
-                    <path
-                      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                  Hoàn thành bài học
-                </>
-              )}
-            </button>
-          </div>
+                    Đã hoàn thành
+                  </>
+                ) : (
+                  <>
+                    <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
+                      <path
+                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                    Hoàn thành bài học
+                  </>
+                )}
+              </button>
+            </div>
+          )}
 
-          {/* Navigation buttons */}
-          <div className="flex justify-between mt-4">
-            <button
-              className="px-6 py-2 rounded border border-gray-300 bg-white text-gray-700 font-semibold hover:bg-gray-100 transition"
-              onClick={() =>
-                prevLesson &&
-                navigate(`/courses/${courseId}/lessons/${prevLesson.id}`)
-              }
-              disabled={!prevLesson}
-            >
-              Bài trước
-            </button>
-            <button
-              className={`px-6 py-2 rounded font-semibold transition flex items-center ${
-                !nextLesson || !isCompleted
-                  ? "bg-gray-300 text-gray-400 cursor-not-allowed"
-                  : "bg-blue-500 text-white hover:bg-blue-600"
-              }`}
-              onClick={() =>
-                nextLesson &&
-                isCompleted &&
-                navigate(`/courses/${courseId}/lessons/${nextLesson.id}`)
-              }
-              disabled={!nextLesson || !isCompleted}
-            >
-              {(!nextLesson || !isCompleted) && (
+          {/* Navigation buttons - chỉ hiển thị khi đã đăng ký */}
+          {enrollmentStatus?.is_enrolled && (
+            <div className="flex justify-between mt-4">
+              <button
+                className="px-6 py-2 rounded border border-gray-300 bg-white text-gray-700 font-semibold hover:bg-gray-100 transition"
+                onClick={() =>
+                  prevLesson &&
+                  navigate(`/courses/${courseId}/lessons/${prevLesson.id}`)
+                }
+                disabled={!prevLesson}
+              >
+                Bài trước
+              </button>
+              <button
+                className={`px-6 py-2 rounded font-semibold transition flex items-center ${
+                  !nextLesson || !isCompleted
+                    ? "bg-gray-300 text-gray-400 cursor-not-allowed"
+                    : "bg-blue-500 text-white hover:bg-blue-600"
+                }`}
+                onClick={() =>
+                  nextLesson &&
+                  isCompleted &&
+                  navigate(`/courses/${courseId}/lessons/${nextLesson.id}`)
+                }
+                disabled={!nextLesson || !isCompleted}
+              >
+                {(!nextLesson || !isCompleted) && (
+                  <svg
+                    width="20"
+                    height="20"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    className="mr-2"
+                  >
+                    <rect
+                      x="3"
+                      y="11"
+                      width="18"
+                      height="11"
+                      rx="2"
+                      ry="2"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                    />
+                    <circle cx="12" cy="16" r="1" fill="currentColor" />
+                    <path
+                      d="M7 11V7a5 5 0 0 1 10 0v4"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                    />
+                  </svg>
+                )}
+                Bài tiếp theo
                 <svg
+                  className="ml-2"
                   width="20"
                   height="20"
                   fill="none"
                   viewBox="0 0 24 24"
-                  className="mr-2"
                 >
-                  <rect
-                    x="3"
-                    y="11"
-                    width="18"
-                    height="11"
-                    rx="2"
-                    ry="2"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                  />
-                  <circle cx="12" cy="16" r="1" fill="currentColor" />
                   <path
-                    d="M7 11V7a5 5 0 0 1 10 0v4"
-                    stroke="currentColor"
+                    d="M9 6l6 6-6 6"
+                    stroke="#fff"
                     strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
                   />
                 </svg>
-              )}
-              Bài tiếp theo
-              <svg
-                className="ml-2"
-                width="20"
-                height="20"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  d="M9 6l6 6-6 6"
-                  stroke="#fff"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </button>
-          </div>
+              </button>
+            </div>
+          )}
         </div>
         {/* Right: Chapter list */}
         <div className="w-full md:w-96">
@@ -440,18 +498,28 @@ const LessonPage = () => {
                   <ul className="pl-8 pr-8 py-2 space-y-1">
                     {chapter.lessons && chapter.lessons.length > 0 ? (
                       chapter.lessons.map((lessonItem) => {
-                        // Kiểm tra xem bài học này đã hoàn thành chưa
-                        const lessonCompleted =
-                          courseProgress?.lesson_progresses?.find(
-                            (lp) =>
-                              String(lp.lesson_id) === String(lessonItem.id)
-                          )?.is_completed || false;
+                        // Kiểm tra xem bài học này đã hoàn thành chưa (chỉ khi đã đăng ký)
+                        const lessonCompleted = enrollmentStatus?.is_enrolled
+                          ? courseProgress?.lesson_progresses?.find(
+                              (lp) =>
+                                String(lp.lesson_id) === String(lessonItem.id)
+                            )?.is_completed || false
+                          : false;
 
                         // Kiểm tra xem bài học có bị lock không
                         let isLocked = lessonItem.is_locked || false;
 
-                        // Nếu khóa học yêu cầu học lần lượt, kiểm tra bài học trước đó
-                        if (course?.is_sequential && !isLocked) {
+                        // Nếu chưa đăng ký khóa học, khóa tất cả bài học
+                        if (!enrollmentStatus?.is_enrolled) {
+                          isLocked = true;
+                        }
+
+                        // Nếu khóa học yêu cầu học lần lượt và đã đăng ký, kiểm tra bài học trước đó
+                        if (
+                          course?.is_sequential &&
+                          enrollmentStatus?.is_enrolled &&
+                          !isLocked
+                        ) {
                           // Tìm bài học trước đó
                           const currentChapterIndex = chapters.findIndex(
                             (ch) => ch.id === lessonItem.chapter_id
@@ -561,7 +629,9 @@ const LessonPage = () => {
                               </span>
                               {isLocked && (
                                 <span className="text-xs bg-gray-200 text-gray-500 px-2 py-1 rounded">
-                                  Bị khóa
+                                  {!enrollmentStatus?.is_enrolled
+                                    ? "Cần đăng ký"
+                                    : "Bị khóa"}
                                 </span>
                               )}
                             </div>
@@ -583,25 +653,31 @@ const LessonPage = () => {
 
       {/* Comment Drawer */}
       <div className="">
-        <CommentDrawer selectedLesson={lesson} open={open} onClose={()=>{onClose()}}/>
+        <CommentDrawer
+          selectedLesson={lesson}
+          open={open}
+          onClose={() => {
+            onClose();
+          }}
+        />
       </div>
       <div className="">
         <FloatButton
-         onClick={showDrawer}
-        icon={
-          <div className="flex flex-row w-full">
-            <WechatOutlined className="text-xl"/>
-          </div>
-        }
-        shape="square"
-        type="primary"
-        style={{
-          insetInlineEnd: 50,
-          width: 120, // 👈 chỉnh width theo ý bạn
-          height: 40, // 👈 optional, chỉnh chiều cao
-          padding: '0 12px',
-        }}
-      />
+          onClick={showDrawer}
+          icon={
+            <div className="flex flex-row w-full">
+              <WechatOutlined className="text-xl" />
+            </div>
+          }
+          shape="square"
+          type="primary"
+          style={{
+            insetInlineEnd: 50,
+            width: 120, // 👈 chỉnh width theo ý bạn
+            height: 40, // 👈 optional, chỉnh chiều cao
+            padding: "0 12px",
+          }}
+        />
       </div>
     </div>
   );

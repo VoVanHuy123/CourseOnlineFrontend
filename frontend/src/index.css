@@ -36,7 +36,9 @@ a {
 a:hover {
   color: #535bf2;
 }
-html, body, #root {
+html,
+body,
+#root {
   width: 100%;
   height: 100%;
   margin: 0;
@@ -109,4 +111,17 @@ button:focus-visible {
 }
 .custom-scrollbar::-webkit-scrollbar-track {
   background: transparent;
+}
+
+/* CSS để bảo vệ video khỏi tải xuống */
+.video-protected video {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Ẩn nút download trong controls */
+video::-webkit-media-controls-download-button {
+  display: none !important;
 }

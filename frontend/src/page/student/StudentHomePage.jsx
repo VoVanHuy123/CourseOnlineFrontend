@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
 import courseCover from "../../assets/img/course-cover.jpg";
 import useFetchApi from "../../hooks/useFetchApi";
+import SearchBar from "../../components/search/SearchBar";
 
 const { Meta } = Card;
 
@@ -28,7 +29,7 @@ const StudentHomePage = () => {
           method: "GET",
         });
         console.log("Categories response:", res.data);
-        setCategories(res.data); 
+        setCategories(res.data);
       } catch (err) {
         message.error("Không thể tải danh mục");
         console.error(err);
@@ -39,8 +40,8 @@ const StudentHomePage = () => {
     fetchCategories();
   }, []);
 
-  const [allCourses, setAllCourses] = useState([]); 
-  const [filteredCourses, setFilteredCourses] = useState([]); 
+  const [allCourses, setAllCourses] = useState([]);
+  const [filteredCourses, setFilteredCourses] = useState([]);
 
   const fetchAllCourses = async () => {
     setLoadingCourses(true);
@@ -51,7 +52,7 @@ const StudentHomePage = () => {
         method: "GET",
       });
       console.log("Courses response:", res.data);
-      const coursesData = res.data.data || res.data; 
+      const coursesData = res.data.data || res.data;
       setAllCourses(coursesData);
       setFilteredCourses(coursesData);
     } catch (err) {
@@ -68,21 +69,20 @@ const StudentHomePage = () => {
   }, []);
 
   useEffect(() => {
-  if (!allCourses) return;
+    if (!allCourses) return;
 
-  // Lọc khóa học đã phát hành (is_public = true) trước
-  const publicCourses = allCourses.filter((course) => course.is_public);
+    // Lọc khóa học đã phát hành (is_public = true) trước
+    const publicCourses = allCourses.filter((course) => course.is_public);
 
-  if (selectedCategory === null) {
-    setFilteredCourses(publicCourses);
-  } else {
-    const filtered = publicCourses.filter(
-      (course) => course.category_id === selectedCategory
-    );
-    setFilteredCourses(filtered);
-  }
-}, [selectedCategory, allCourses]);
-
+    if (selectedCategory === null) {
+      setFilteredCourses(publicCourses);
+    } else {
+      const filtered = publicCourses.filter(
+        (course) => course.category_id === selectedCategory
+      );
+      setFilteredCourses(filtered);
+    }
+  }, [selectedCategory, allCourses]);
 
   if (isInitialLoad && (loadingCategories || loadingCourses))
     return <Skeleton active />;
@@ -97,14 +97,20 @@ const StudentHomePage = () => {
 
   return (
     <div className="relative min-h-screen">
-      <div
-        className="absolute inset-0 z-0"
-      />
+      <div className="absolute inset-0 z-0" />
       {/* Nội dung chính */}
       <div className="relative z-10 p-6">
         <h2 className="text-2xl font-bold mb-6">
           Chào mừng, {user?.name || "Học viên"}!
         </h2>
+
+        {/* Search Bar */}
+        <div className="mb-8">
+          <SearchBar
+            placeholder="Tìm kiếm khóa học theo tên, giáo viên, danh mục..."
+            style={{ maxWidth: "600px", margin: "0 auto" }}
+          />
+        </div>
         <div className="flex gap-2 overflow-x-auto pb-2 mb-6 p-4 relative z-20">
           <button
             className={`px-4 py-2  rounded-full border font-semibold transition whitespace-nowrap
@@ -161,7 +167,7 @@ const StudentHomePage = () => {
                       e.target.src = courseCover;
                     }}
                   />
-                  
+
                   <div className="p-4">
                     <h4 className="font-semibold text-lg truncate">
                       {course?.title}

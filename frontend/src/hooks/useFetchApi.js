@@ -8,18 +8,23 @@ const useFetchApi = () => {
   const [loading, setLoading] = useState(false);
   const { auth } = useContext(AuthContext); // lấy token từ context
 
-  const fetchApi = async ({ method = "GET", url, token=null, data = null, params = null, }) => {
+  const fetchApi = async ({
+    method = "GET",
+    url,
+    token = null,
+    data = null,
+    params = null,
+  }) => {
     setLoading(true);
 
     const headers = {
       Authorization: `Bearer ${token || localStorage.getItem("token")}`,
     };
-    
 
     // Nếu là FormData thì KHÔNG gán Content‑Type
     if (!(data instanceof FormData)) {
       headers["Content-Type"] = "application/json";
-    }else{
+    } else {
       headers["Content-Type"] = "multipart/form-data";
     }
 
@@ -36,16 +41,19 @@ const useFetchApi = () => {
         data,
         params,
         headers,
-    //     headers:{
-    //   Authorization: `Bearer ${token || localStorage.getItem("token")}`,
-    // }
-      }
-      const res = await api(config)
-        
+        //     headers:{
+        //   Authorization: `Bearer ${token || localStorage.getItem("token")}`,
+        // }
+      };
+      console.log("API Request Config:", config);
+      const res = await api(config);
+      console.log("API Response:", res);
 
       response.status = res.status;
       response.data = res.data;
     } catch (err) {
+      console.error("API Error:", err);
+      console.error("API Error Response:", err.response);
       response.status = err.response?.status || 500;
       response.error = err.response?.data || err.message;
     } finally {
