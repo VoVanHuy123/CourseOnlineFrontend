@@ -1,61 +1,70 @@
-// components/layout/HeaderLayout.jsx
-import React from "react";
-import { Layout, Menu } from "antd";
+import React, { useContext } from "react";
+import { Avatar, Layout, Menu } from "antd";
 import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../../context/AuthContext";
+import defaultImage from "../../assets/img/avatar.png";
+
 const { Header } = Layout;
 
 const HeaderLayout = () => {
-    const navigate = useNavigate();
-
+  const navigate = useNavigate();
+  const { user, logout, isAuthenticated } = useContext(AuthContext);
+  console.log(user)
   const handleClick = ({ key }) => {
-    navigate(key); // key chính là đường dẫn
+    if (key === "logout") {
+      logout();
+      navigate("/login");
+    } else {
+      navigate(key);
+    }
   };
+
+  const nav = isAuthenticated
+    ? [
+        { label: "Trang chủ", key: "/" },
+        { label: "Đăng xuất", key: "logout" },
+      ]
+    : [
+        { label: "Trang chủ", key: "/" },
+        { label: "Đăng nhập", key: "/login" },
+        { label: "Đăng ký", key: "/register" },
+      ];
+
   return (
-    <Header style={{ color: "white", fontSize: 20 }}>
-      <div style={{ float: "left", color: "white" }}>
+    <Header
+      style={{
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        padding: "0 24px",
+        background: "#0f172a",
+      }}
+    >
+      {/* Left: Logo or Title */}
+      <div style={{ color: "white", fontSize: "20px", fontWeight: "bold" }}>
         Course Online
       </div>
-      <Menu
-        theme="dark"
-        mode="horizontal"
-        style={{ float: "right" }}
-        onClick={handleClick}
-        items={[
-          { label: "Trang chủ", key: "/" },
-          { label: "Đăng nhập", key: "/login" },
-          { label: "Đăng ký", key: "/register" },
-        ]}
-      />
+
+      {/* Right: Menu + Avatar */}
+      <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+        <Menu
+          theme="dark"
+          mode="horizontal"
+          onClick={handleClick}
+          items={nav}
+          style={{ background: "transparent", borderBottom: "none" }}
+        />
+        {isAuthenticated && (
+          <Avatar size={40} src={user?.avatar || defaultImage} 
+            onClick={()=>{
+              navigate(`/profile/${user.role}/${user.id}`, {
+                state: { allowEdit: true }
+              });
+            }}
+          />
+        )}
+      </div>
     </Header>
-    //  <Header
-    //     style={{
-    //       display: "flex",
-    //       alignItems: "center",
-    //       justifyContent: "space-between",
-    //       background: "#001529",
-    //       padding: "0 24px",
-    //     }}
-    //   >
-    //     <div style={{ color: "#fff", fontSize: 20, fontWeight: "bold" }}>
-    //       🎓 CourseOnline
-    //     </div>
-    //     <Menu
-    //       theme="dark"
-    //       mode="horizontal"
-    //       defaultSelectedKeys={["home"]}
-    //       style={{ flex: 1, justifyContent: "flex-end", background: "transparent" }}
-    //     >
-    //       <Menu.Item key="home">
-    //         <Link to="/">Trang chủ</Link>
-    //       </Menu.Item>
-    //       <Menu.Item key="register">
-    //         <Link to="/register">Đăng ký</Link>
-    //       </Menu.Item>
-    //       <Menu.Item key="login">
-    //         <Link to="/login">Đăng nhập</Link>
-    //       </Menu.Item>
-    //     </Menu>
-    //   </Header> 
   );
 };
 

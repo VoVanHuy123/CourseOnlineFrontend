@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 #root {
   margin: 0;
   padding: 0;
@@ -91,4 +95,18 @@ button:focus-visible {
   button {
     background-color: #f9f9f9;
   }
+}
+/* Thêm vào file global.css hoặc tương ứng */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.1);
+  border-radius: 6px;
+}
+.custom-scrollbar:hover::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.3);
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
 }

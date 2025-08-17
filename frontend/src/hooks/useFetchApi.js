@@ -1,13 +1,27 @@
 import axios from "axios";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { BASE_URL } from "../services/api";
 import api from "../services/api";
+import { AuthContext } from "../context/AuthContext";
 
 const useFetchApi = () => {
   const [loading, setLoading] = useState(false);
+  const { auth } = useContext(AuthContext); // lấy token từ context
 
-  const fetchApi = async ({ method = "GET", url, token, data = null, params = null }) => {
+  const fetchApi = async ({ method = "GET", url, token=null, data = null, params = null, }) => {
     setLoading(true);
+
+    const headers = {
+      Authorization: `Bearer ${token || localStorage.getItem("token")}`,
+    };
+    
+
+    // Nếu là FormData thì KHÔNG gán Content‑Type
+    if (!(data instanceof FormData)) {
+      headers["Content-Type"] = "application/json";
+    }else{
+      headers["Content-Type"] = "multipart/form-data";
+    }
 
     let response = {
       status: null,
@@ -16,12 +30,15 @@ const useFetchApi = () => {
     };
 
     try {
-      
       const config = {
         method,
         url,
         data,
         params,
+        headers,
+    //     headers:{
+    //   Authorization: `Bearer ${token || localStorage.getItem("token")}`,
+    // }
       }
       const res = await api(config)
         
