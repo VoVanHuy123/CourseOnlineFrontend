@@ -9,7 +9,7 @@ const { Header } = Layout;
 const HeaderLayout = () => {
   const navigate = useNavigate();
   const { user, logout, isAuthenticated } = useContext(AuthContext);
-  console.log(user)
+  console.log(user);
   const handleClick = ({ key }) => {
     if (key === "logout") {
       logout();
@@ -55,10 +55,12 @@ const HeaderLayout = () => {
           style={{ background: "transparent", borderBottom: "none" }}
         />
         {isAuthenticated && (
-          <Avatar size={40} src={user?.avatar || defaultImage} 
-            onClick={()=>{
+          <Avatar
+            size={40}
+            src={user?.avatar || defaultImage}
+            onClick={() => {
               navigate(`/profile/${user.role}/${user.id}`, {
-                state: { allowEdit: true }
+                state: { allowEdit: true },
               });
             }}
           />

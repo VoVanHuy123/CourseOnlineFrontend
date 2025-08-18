@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
 import courseCover from "../../assets/img/course-cover.jpg";
 import useFetchApi from "../../hooks/useFetchApi";
+import SearchBar from "../../components/search/SearchBar";
 
 const { Meta } = Card;
 
@@ -28,7 +29,7 @@ const StudentHomePage = () => {
           method: "GET",
         });
         console.log("Categories response:", res.data);
-        setCategories(res.data); 
+        setCategories(res.data);
       } catch (err) {
         message.error("Không thể tải danh mục");
         console.error(err);
@@ -39,8 +40,8 @@ const StudentHomePage = () => {
     fetchCategories();
   }, []);
 
-  const [allCourses, setAllCourses] = useState([]); 
-  const [filteredCourses, setFilteredCourses] = useState([]); 
+  const [allCourses, setAllCourses] = useState([]);
+  const [filteredCourses, setFilteredCourses] = useState([]);
 
   const fetchAllCourses = async () => {
     setLoadingCourses(true);
@@ -51,7 +52,7 @@ const StudentHomePage = () => {
         method: "GET",
       });
       console.log("Courses response:", res.data);
-      const coursesData = res.data.data || res.data; 
+      const coursesData = res.data.data || res.data;
       setAllCourses(coursesData);
       setFilteredCourses(coursesData);
     } catch (err) {
@@ -70,10 +71,13 @@ const StudentHomePage = () => {
   useEffect(() => {
     if (!allCourses) return;
 
+    // Lọc khóa học đã phát hành (is_public = true) trước
+    const publicCourses = allCourses.filter((course) => course.is_public);
+
     if (selectedCategory === null) {
-      setFilteredCourses(allCourses);
+      setFilteredCourses(publicCourses);
     } else {
-      const filtered = allCourses.filter(
+      const filtered = publicCourses.filter(
         (course) => course.category_id === selectedCategory
       );
       setFilteredCourses(filtered);
@@ -93,14 +97,20 @@ const StudentHomePage = () => {
 
   return (
     <div className="relative min-h-screen">
-      <div
-        className="absolute inset-0 z-0"
-      />
+      <div className="absolute inset-0 z-0" />
       {/* Nội dung chính */}
       <div className="relative z-10 p-6">
         <h2 className="text-2xl font-bold mb-6">
           Chào mừng, {user?.name || "Học viên"}!
         </h2>
+
+        {/* Search Bar */}
+        <div className="mb-8">
+          <SearchBar
+            placeholder="Tìm kiếm khóa học theo tên, giáo viên, danh mục..."
+            style={{ maxWidth: "600px", margin: "0 auto" }}
+          />
+        </div>
         <div className="flex gap-2 overflow-x-auto pb-2 mb-6 p-4 relative z-20">
           <button
             className={`px-4 py-2  rounded-full border font-semibold transition whitespace-nowrap
@@ -147,14 +157,20 @@ const StudentHomePage = () => {
                     navigate(`/courses/${course.id}`);
                   }}
                 >
+                  {console.log("Course image:", course.image)}
                   <img
-                    src={course.image || courseCover}
+                    src={course?.image || courseCover}
                     alt={course.title}
                     className="w-full h-40 object-cover rounded-t-xl"
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = courseCover;
+                    }}
                   />
+
                   <div className="p-4">
                     <h4 className="font-semibold text-lg truncate">
-                      {course.title}
+                      {course?.title}
                     </h4>
                     <p className="text-gray-500 text-sm mt-1 line-clamp-2">
                       {course.description}

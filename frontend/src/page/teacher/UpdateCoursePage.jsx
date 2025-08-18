@@ -72,6 +72,7 @@ for (let [key, value] of formData.entries()) {
         type: "loading",
         content: "Đang cập nhật khóa học...",
         duration: 3,
+
       });
 
       const res = await fetchApi({
