@@ -103,7 +103,7 @@ const teacherFields = [
     >
       
       <div
-      
+        className="relative z-10"
         style={{
            width: "100%",
           maxWidth: 600,
@@ -111,7 +111,8 @@ const teacherFields = [
           background: "#fff",
           borderRadius: 8,
           boxShadow: "0 0 10px rgba(0,0,0,0.1)",
-          
+          position:"relative",
+          zIndex:"10"
         }}
       >
         <h2 style={{ textAlign: "center", marginBottom: 24, color:"black" }}>

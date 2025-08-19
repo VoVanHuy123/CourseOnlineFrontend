@@ -123,6 +123,7 @@ const renderDynamicFormItems = (fields, options = {}) => {
             className="border border-black"
             placeholder={field.placeholder || ""}
             readOnly={isReadOnly}
+            autoComplete="off"
           />
         );
         break;
