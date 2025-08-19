@@ -9,7 +9,7 @@ const { Header } = Layout;
 const HeaderLayout = () => {
   const navigate = useNavigate();
   const { user, logout, isAuthenticated } = useContext(AuthContext);
-  console.log(user)
+  console.log(user);
   const handleClick = ({ key }) => {
     if (key === "logout") {
       logout();

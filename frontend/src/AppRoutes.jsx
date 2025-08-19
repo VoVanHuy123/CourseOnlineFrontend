@@ -1,10 +1,9 @@
-
 import { Routes, Route } from "react-router-dom";
-import HomePage from './page/HomePage';
-import RegisterPage from './page/RegisterPage';
-import LoginPage from './page/LoginPage';
-import CreateCourse from './page/teacher/CreateCoursePage';
-import PrivateRoute from './components/routes/PrivateRoute';
+import HomePage from "./page/HomePage";
+import RegisterPage from "./page/RegisterPage";
+import LoginPage from "./page/LoginPage";
+import CreateCourse from "./page/teacher/CreateCoursePage";
+import PrivateRoute from "./components/routes/PrivateRoute";
 import CreateChapTerLesson from "./page/teacher/CreateChapTerLesson";
 import UpdateCoure from "./page/teacher/UpdateCoursePage";
 import DetailCoursePage from "./page/student/DetailCoursePage";
@@ -18,14 +17,17 @@ const AppRoutes = () => (
   <Routes>
     <Route path="/login" element={<LoginPage />} />
     <Route path="/register" element={<RegisterPage />} />
-    <Route path="/"
+    <Route
+      path="/"
       element={
         // <PrivateRoute allowedRoles={["teacher", "student", "admin",]}>
-          <HomePage />
+        <HomePage />
         // </PrivateRoute>
       }
     />
-    <Route path="/create"
+
+    <Route
+      path="/create"
       element={
         <PrivateRoute allowedRoles={["teacher"]}>
           <CreateCourse />
@@ -52,7 +54,7 @@ const AppRoutes = () => (
       path="/courses/:id"
       element={
         // <PrivateRoute allowedRoles={["student"]}>
-          <DetailCoursePage />
+        <DetailCoursePage />
         // </PrivateRoute>
       }
     />
@@ -84,20 +86,22 @@ const AppRoutes = () => (
         </PrivateRoute>
       }
     />
-    <Route path="/profile/:role/:id" 
+    <Route
+      path="/profile/:role/:id"
       element={
-        <PrivateRoute allowedRoles={["student","admin","teacher"]}>
-      <UserProfilePage />
-      </PrivateRoute>
-      } 
-      />
-      <Route path="/lessons/:lessonId/history" 
+        <PrivateRoute allowedRoles={["student", "admin", "teacher"]}>
+          <UserProfilePage />
+        </PrivateRoute>
+      }
+    />
+    <Route
+      path="/lessons/:lessonId/history"
       element={
         <PrivateRoute allowedRoles={["teacher"]}>
-      <LessonHistoryList />
-      </PrivateRoute>
-      } />
-
+          <LessonHistoryList />
+        </PrivateRoute>
+      }
+    />
   </Routes>
 );
 

@@ -103,7 +103,7 @@ const teacherFields = [
     >
       
       <div
-        className="relative z-10"
+        // className="relative z-10"
         style={{
            width: "100%",
           maxWidth: 600,
