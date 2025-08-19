@@ -49,17 +49,21 @@ export const AuthProvider = ({ children }) => {
 
   // ✅ Gọi API refresh access token
   const refreshAccessToken = async () => {
-    if (!refreshToken) return logout();
+    // if (!refreshToken) return logout();
 
     try {
       const response = await axios.post(endpoints['refresh'], {
         refresh_token: refreshToken,
       });
+      if(response.status === 200) {
+        const { access_token } = response.data;
 
-      const { access_token } = response.data;
+        updateToken(access_token);
+        scheduleRefresh(access_token);
+      }
+      else return logout();
+      
 
-      updateToken(access_token);
-      scheduleRefresh(access_token);
     } catch (err) {
       console.error("Refresh token expired or invalid", err);
       logout();

@@ -125,3 +125,8 @@ button:focus-visible {
 video::-webkit-media-controls-download-button {
   display: none !important;
 }
+.ant-btn-variant-outlined:hover {
+  /* background-color: #DBFFCB !important; */
+  color: #A08963 !important;
+  border: 1px solid  #A08963!important;
+}
