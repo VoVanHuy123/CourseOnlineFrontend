@@ -2,9 +2,9 @@ import React, { useState, useEffect, useRef } from "react";
 import { Input, Button, Card, List, Avatar, Spin, Empty } from "antd";
 import { SearchOutlined, BookOutlined, UserOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
-import useFetchApi from "../hooks/useFetchApi";
-import { endpoints } from "../services/api";
-import courseCover from "../assets/img/course-cover.jpg";
+import useFetchApi from "../../hooks/useFetchApi";
+import { endpoints } from "../../services/api";
+import courseCover from "../../assets/img/course-cover.jpg";
 
 const { Search } = Input;
 
