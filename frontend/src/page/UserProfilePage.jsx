@@ -109,7 +109,7 @@ const UserProfilePage = () => {
   if (loading) return <Spin fullscreen />;
 
   return (
-    <div className="p-8 bg-white rounded shadow-md max-w-5xl mx-auto w-full">
+    <div className="p-8 bg-white rounded shadow-md max-w-5xl mx-auto w-full relative z-10">
       <h1 className="text-2xl font-semibold mb-8 text-center ">Thông tin người dùng</h1>
       {contextHolder}
       <ProfileForm

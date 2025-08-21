@@ -21,14 +21,14 @@ const HeaderLayout = () => {
 
   const nav = isAuthenticated
     ? [
-        { label: "Trang chủ", key: "/" },
-        { label: "Đăng xuất", key: "logout" },
-      ]
+      { label: "Trang chủ", key: "/" },
+      { label: "Đăng xuất", key: "logout" },
+    ]
     : [
-        { label: "Trang chủ", key: "/" },
-        { label: "Đăng nhập", key: "/login" },
-        { label: "Đăng ký", key: "/register" },
-      ];
+      { label: "Trang chủ", key: "/" },
+      { label: "Đăng nhập", key: "/login" },
+      { label: "Đăng ký", key: "/register" },
+    ];
 
   return (
     <Header
@@ -55,15 +55,26 @@ const HeaderLayout = () => {
           style={{ background: "transparent", borderBottom: "none" }}
         />
         {isAuthenticated && (
-          <Avatar
-            size={40}
-            src={user?.avatar || defaultImage}
+          <div 
             onClick={() => {
-              navigate(`/profile/${user.role}/${user.id}`, {
-                state: { allowEdit: true },
-              });
-            }}
-          />
+                navigate(`/profile/${user.role}/${user.id}`, {
+                  state: { allowEdit: true }
+                });
+              }} 
+              className="flex felx-row justify-center items-center gap-4 cursor-pointer">
+            <Avatar size={40} src={user?.avatar || defaultImage}
+              // onClick={() => {
+              //   navigate(`/profile/${user.role}/${user.id}`, {
+              //     state: { allowEdit: true }
+              //   });
+              // }}
+            />
+            <div className="text-white flex flex-col leading-tight">
+              <span>{user?.first_name} {user?.last_name}</span>
+              <span>{user?.role}</span>
+            </div>
+          </div>
+
         )}
       </div>
     </Header>

@@ -18,31 +18,14 @@ const ProfileForm = ({
   }, [profileData]);
 
   const avatarFields = [
-  {
-    name: "avatar",
-    type: "upload",
-    title: "Thay ảnh",
-    initialValue: Array.isArray(profileData?.avatar)
-      ? profileData.avatar
-      : profileData?.avatar
-      ? [
-          {
-            uid: "-1",
-            name: profileData.avatar.split("/").pop(),
-            status: "done",
-            url: profileData.avatar,
-          },
-        ]
-      : [],
-  },
-];
-useEffect(() => {
-  if (profileData) {
-    const mappedData = {
-      ...profileData,
-      gender: profileData.gender?.split(".")[1]?.toLowerCase() || "",
-      avatar: typeof profileData.avatar === "string" && profileData.avatar
-        ? [
+    {
+      name: "avatar",
+      type: "upload",
+      title: "Thay ảnh",
+      initialValue: Array.isArray(profileData?.avatar)
+        ? profileData.avatar
+        : profileData?.avatar
+          ? [
             {
               uid: "-1",
               name: profileData.avatar.split("/").pop(),
@@ -50,19 +33,30 @@ useEffect(() => {
               url: profileData.avatar,
             },
           ]
-        : [],
-    };
-    form.setFieldsValue(mappedData);
-  }
-}, [profileData]);
-
-
-  const commonFields = [
-    {
-      name: "username",
-      label: "Tên đăng nhập",
-      rules: [{ required: true, message: "Vui lòng nhập tên đăng nhập" }],
+          : [],
     },
+  ];
+  useEffect(() => {
+    if (profileData) {
+      const mappedData = {
+        ...profileData,
+        gender: profileData.gender?.split(".")[1]?.toLowerCase() || "",
+        avatar: typeof profileData.avatar === "string" && profileData.avatar
+          ? [
+            {
+              uid: "-1",
+              name: profileData.avatar.split("/").pop(),
+              status: "done",
+              url: profileData.avatar,
+            },
+          ]
+          : [],
+      };
+      form.setFieldsValue(mappedData);
+    }
+  }, [profileData]);
+
+  const nameFields = [
     {
       name: "first_name",
       label: "Họ",
@@ -73,16 +67,30 @@ useEffect(() => {
       label: "Tên",
       rules: [{ required: true, message: "Vui lòng nhập tên" }],
     },
+
+
+  ]
+  const contactFields = [
+
+    {
+      name: "phonenumber",
+      label: "Số điện thoại",
+    },
     {
       name: "email",
       label: "Email",
       rules: [{ type: "email", message: "Email không hợp lệ" }],
     },
+
+  ]
+  const commonFields = [
     {
-      name: "phonenumber",
-      label: "Số điện thoại",
+      name: "username",
+      label: "Tên đăng nhập",
+      rules: [{ required: true, message: "Vui lòng nhập tên đăng nhập" }],
     },
-    
+
+
   ];
 
   const roleFields = {
@@ -90,15 +98,15 @@ useEffect(() => {
       { name: "student_code", label: "Mã sinh viên", rules: [{ required: true }] },
       { name: "university", label: "Trường", rules: [{ required: true }] },
       {
-      name: "gender",
-      label: "Giới tính",
-      type: "select",
-      options: [
-        { label: "Nam", value: "male" },
-        { label: "Nữ", value: "female" },
-        { label: "Khác", value: "other" },
-      ],
-    },
+        name: "gender",
+        label: "Giới tính",
+        type: "select",
+        options: [
+          { label: "Nam", value: "male" },
+          { label: "Nữ", value: "female" },
+          { label: "Khác", value: "other" },
+        ],
+      },
     ],
     teacher: [
       { name: "current_workplace", label: "Nơi công tác", rules: [{ required: true }] },
@@ -132,22 +140,39 @@ useEffect(() => {
 
   return (
     <Form className="" layout="vertical" form={form} onFinish={onSubmit}>
-      <div className="flex flex-row justify-between gap-16">
-        <div className="flex flex-col items-center">
-          <Avatar className="shadow-xl mb-8" shape="square" size={120} src={profileData?.avatar||defaultImage}/>
+      <div className="flex flex-row justify-between gap-8">
+        <div className="flex flex-col items-center border border-black p-8 rounded-md">
+          <Avatar className="shadow-xl mb-8" shape="square" size={150} src={profileData?.avatar || defaultImage} />
           {renderDynamicFormItems(avatarFields)}
         </div>
-      <div className="flex-1">
-        {[...commonFields, ...(roleFields[role] || [])].map(renderField)}
+        <div className="flex-1 border border-black p-8 rounded-md">
+          {/* {[...commonFields].map(renderField)} */}
+
+          {renderDynamicFormItems(commonFields)}
+          <div className="flex flex-row w-full gap-4 flex-1">
+
+            {renderDynamicFormItems(nameFields)}
+          </div>
+          <div className="flex flex-row w-full gap-4 flex-1">
+
+            {renderDynamicFormItems(contactFields)}
+          </div>
+        </div>
       </div>
+      <div className="w-full border border-black my-8 p-8 rounded-md">
+
+        {[...(roleFields[role] || [])].map(renderField)}
       </div>
-      
+
       {allowEdit && (
+        <div className="w-full flex justify-center">
+          
         <Form.Item>
-          <Button className="w-full" type="primary" htmlType="submit">
+          <Button className="min-w-64 h-12" type="primary" htmlType="submit">
             Cập nhật
           </Button>
         </Form.Item>
+        </div>
       )}
     </Form>
   );

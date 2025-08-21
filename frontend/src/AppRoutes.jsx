@@ -15,8 +15,8 @@ import LessonHistoryList from "./components/list/LessonHistoryList";
 
 const AppRoutes = () => (
   <Routes>
-    <Route path="/login" element={<LoginPage />} />
-    <Route path="/register" element={<RegisterPage />} />
+    {/* <Route path="/login" element={<LoginPage />} />
+    <Route path="/register" element={<RegisterPage />} /> */}
     <Route
       path="/"
       element={
