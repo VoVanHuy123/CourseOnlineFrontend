@@ -20,6 +20,10 @@ const StudentHomePage = () => {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
   const { fetchApi } = useFetchApi();
+  const displayName = user
+    ? [user.first_name, user.last_name].filter(Boolean).join(" ") ||
+      user.username
+    : null;
   useEffect(() => {
     const fetchCategories = async () => {
       setLoadingCategories(true);
@@ -28,7 +32,6 @@ const StudentHomePage = () => {
           url: endpoints.categories,
           method: "GET",
         });
-        console.log("Categories response:", res.data);
         setCategories(res.data);
       } catch (err) {
         message.error("Không thể tải danh mục");
@@ -51,7 +54,6 @@ const StudentHomePage = () => {
         url: endpoints.courses,
         method: "GET",
       });
-      console.log("Courses response:", res.data);
       const coursesData = res.data.data || res.data;
       setAllCourses(coursesData);
       setFilteredCourses(coursesData);
@@ -101,7 +103,7 @@ const StudentHomePage = () => {
       {/* Nội dung chính */}
       <div className="relative z-10 p-6">
         <h2 className="text-2xl font-bold mb-6">
-          Chào mừng, {user?.name || "Học viên"}!
+          Chào mừng, {displayName || "Học viên"}!
         </h2>
 
         {/* Search Bar */}
@@ -153,11 +155,9 @@ const StudentHomePage = () => {
                   key={course.id}
                   className="bg-white rounded-xl shadow hover:shadow-lg transition cursor-pointer border border-gray-100"
                   onClick={() => {
-                    console.log("Click card", course.id);
                     navigate(`/courses/${course.id}`);
                   }}
                 >
-                  {console.log("Course image:", course.image)}
                   <img
                     src={course?.image || courseCover}
                     alt={course.title}
@@ -195,9 +195,13 @@ const StudentHomePage = () => {
                   onClick={() => navigate(`/courses/${course.id}`)}
                 >
                   <img
-                    src={course.cover || courseCover}
+                    src={course?.image || courseCover}
                     alt={course.title}
                     className="w-full h-40 object-cover rounded-t-xl"
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = courseCover;
+                    }}
                   />
                   <div className="p-4">
                     <h4 className="font-semibold text-lg truncate">

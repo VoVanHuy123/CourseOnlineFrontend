@@ -167,7 +167,6 @@ const LessonPage = () => {
     }
   };
 
-  console.log("lesson", lesson);
 
   return (
     <div className="relative min-h-screen bg-white">
@@ -480,25 +479,33 @@ const LessonPage = () => {
         {/* Right: Chapter list */}
         <div className="w-full md:w-96">
           <div className="bg-white rounded-xl border p-4">
-            <h3 className="font-bold text-lg mb-4">Nội dung</h3>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-bold text-lg">Nội dung khóa học</h3>
+              <span className="text-xs px-2 py-1 rounded-full bg-blue-50 text-blue-600 border border-blue-100">
+                {chapters?.reduce((s, c) => s + (c?.lessons?.length || 0), 0) ||
+                  0}{" "}
+                bài
+              </span>
+            </div>
             {chapters && chapters.length > 0 ? (
               chapters.map((chapter, idx) => (
                 <details
                   key={chapter.id}
-                  className="mb-3 border rounded"
+                  className="mb-3 border rounded-lg overflow-hidden"
                   open={
                     chapter.lessons &&
                     chapter.lessons.some((l) => String(l.id) === lessonId)
                   }
                 >
-                  <summary className="cursor-pointer px-4 py-2 font-semibold select-none flex justify-between items-center">
-                    {chapter.title}
-                    <span>{chapter.lessons.length}</span>
+                  <summary className="cursor-pointer px-4 py-3 font-semibold select-none flex justify-between items-center bg-gray-50 hover:bg-gray-100">
+                    <span className="truncate">{chapter.title}</span>
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-white border text-gray-600">
+                      {chapter?.lessons?.length || 0}
+                    </span>
                   </summary>
-                  <ul className="pl-8 pr-8 py-2 space-y-1">
+                  <ul className="px-3 py-2 space-y-2">
                     {chapter.lessons && chapter.lessons.length > 0 ? (
                       chapter.lessons.map((lessonItem) => {
-                        // Kiểm tra xem bài học này đã hoàn thành chưa (chỉ khi đã đăng ký)
                         const lessonCompleted = enrollmentStatus?.is_enrolled
                           ? courseProgress?.lesson_progresses?.find(
                               (lp) =>
@@ -506,42 +513,33 @@ const LessonPage = () => {
                             )?.is_completed || false
                           : false;
 
-                        // Kiểm tra xem bài học có bị lock không
                         let isLocked = lessonItem.is_locked || false;
-
-                        // Nếu chưa đăng ký khóa học, khóa tất cả bài học
                         if (!enrollmentStatus?.is_enrolled) {
                           isLocked = true;
                         }
 
-                        // Nếu khóa học yêu cầu học lần lượt và đã đăng ký, kiểm tra bài học trước đó
                         if (
                           course?.is_sequential &&
                           enrollmentStatus?.is_enrolled &&
                           !isLocked
                         ) {
-                          // Tìm bài học trước đó
                           const currentChapterIndex = chapters.findIndex(
                             (ch) => ch.id === lessonItem.chapter_id
                           );
                           const currentLessonIndex = chapters[
                             currentChapterIndex
                           ]?.lessons?.findIndex((l) => l.id === lessonItem.id);
-
                           if (
                             currentChapterIndex > 0 ||
                             currentLessonIndex > 0
                           ) {
-                            // Kiểm tra bài học trước đó
                             let prevLesson = null;
                             if (currentLessonIndex > 0) {
-                              // Cùng chapter, bài học trước đó
                               prevLesson =
                                 chapters[currentChapterIndex].lessons[
                                   currentLessonIndex - 1
                                 ];
                             } else if (currentChapterIndex > 0) {
-                              // Chapter trước đó, bài học cuối cùng
                               const prevChapter =
                                 chapters[currentChapterIndex - 1];
                               if (
@@ -554,8 +552,6 @@ const LessonPage = () => {
                                   ];
                               }
                             }
-
-                            // Nếu có bài học trước đó, kiểm tra xem đã hoàn thành chưa
                             if (prevLesson) {
                               const prevLessonCompleted =
                                 courseProgress?.lesson_progresses?.find(
@@ -563,7 +559,6 @@ const LessonPage = () => {
                                     String(lp.lesson_id) ===
                                     String(prevLesson.id)
                                 )?.is_completed || false;
-
                               if (!prevLessonCompleted) {
                                 isLocked = true;
                               }
@@ -571,19 +566,19 @@ const LessonPage = () => {
                           }
                         }
 
+                        const isActive = String(lessonItem.id) === lessonId;
+
                         return (
                           <li
                             key={lessonItem.id}
-                            className={`px-3 py-2 transition border border-gray-100 ${
+                            className={`flex items-center justify-between px-3 py-2 rounded-lg border transition ${
                               isLocked
-                                ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                                ? "bg-gray-50 text-gray-400 border-gray-200 cursor-not-allowed"
                                 : lessonCompleted
-                                ? "bg-green-50 text-green-800 cursor-pointer hover:bg-green-100"
-                                : "text-gray-700 cursor-pointer hover:bg-gray-50"
-                            } ${
-                              String(lessonItem.id) === lessonId
-                                ? "font-bold text-blue-600"
-                                : ""
+                                ? "bg-green-50 text-green-800 border-green-200 hover:bg-green-100 cursor-pointer"
+                                : isActive
+                                ? "bg-blue-50 text-blue-700 border-blue-200 ring-1 ring-blue-300 cursor-pointer"
+                                : "bg-white text-gray-700 border-gray-200 hover:bg-gray-50 cursor-pointer"
                             }`}
                             onClick={() => {
                               if (!isLocked) {
@@ -593,45 +588,112 @@ const LessonPage = () => {
                               }
                             }}
                           >
-                            <div className="flex items-center justify-between">
-                              <span className="flex items-center gap-2">
-                                {isLocked && (
-                                  <svg
-                                    width="16"
-                                    height="16"
+                            <div className="flex items-center gap-3 min-w-0">
+                              {/* trạng thái */}
+                              {isLocked ? (
+                                <svg
+                                  width="18"
+                                  height="18"
+                                  fill="none"
+                                  viewBox="0 0 24 24"
+                                  className="shrink-0"
+                                >
+                                  <rect
+                                    x="3"
+                                    y="11"
+                                    width="18"
+                                    height="11"
+                                    rx="2"
+                                    ry="2"
+                                    stroke="currentColor"
+                                    strokeWidth="2"
+                                  />
+                                  <circle
+                                    cx="12"
+                                    cy="16"
+                                    r="1"
+                                    fill="currentColor"
+                                  />
+                                  <path
+                                    d="M7 11V7a5 5 0 0 1 10 0v4"
+                                    stroke="currentColor"
+                                    strokeWidth="2"
+                                  />
+                                </svg>
+                              ) : lessonCompleted ? (
+                                <svg
+                                  width="18"
+                                  height="18"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  className="shrink-0"
+                                >
+                                  <path
+                                    d="M9 12l2 2 4-4"
+                                    stroke="currentColor"
+                                    strokeWidth="2"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                  />
+                                  <circle
+                                    cx="12"
+                                    cy="12"
+                                    r="9"
+                                    stroke="currentColor"
+                                    strokeWidth="2"
                                     fill="none"
-                                    viewBox="0 0 24 24"
-                                  >
-                                    <rect
-                                      x="3"
-                                      y="11"
-                                      width="18"
-                                      height="11"
-                                      rx="2"
-                                      ry="2"
-                                      stroke="currentColor"
-                                      strokeWidth="2"
-                                    />
-                                    <circle
-                                      cx="12"
-                                      cy="16"
-                                      r="1"
-                                      fill="currentColor"
-                                    />
-                                    <path
-                                      d="M7 11V7a5 5 0 0 1 10 0v4"
-                                      stroke="currentColor"
-                                      strokeWidth="2"
-                                    />
-                                  </svg>
-                                )}
+                                  />
+                                </svg>
+                              ) : isActive ? (
+                                <svg
+                                  width="18"
+                                  height="18"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  className="shrink-0"
+                                >
+                                  <polygon
+                                    points="9,6 16,12 9,18"
+                                    fill="currentColor"
+                                  />
+                                </svg>
+                              ) : (
+                                <svg
+                                  width="18"
+                                  height="18"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  className="shrink-0"
+                                >
+                                  <circle
+                                    cx="12"
+                                    cy="12"
+                                    r="9"
+                                    stroke="currentColor"
+                                    strokeWidth="2"
+                                    fill="none"
+                                  />
+                                </svg>
+                              )}
+                              <span
+                                className={`truncate ${
+                                  isActive ? "font-semibold" : ""
+                                }`}
+                              >
                                 {lessonItem.title}
                               </span>
+                            </div>
+                            <div className="flex items-center gap-2">
                               {isLocked && (
-                                <span className="text-xs bg-gray-200 text-gray-500 px-2 py-1 rounded">
+                                <span className="text-[10px] px-2 py-0.5 rounded-full bg-gray-200 text-gray-600">
                                   {!enrollmentStatus?.is_enrolled
                                     ? "Cần đăng ký"
                                     : "Bị khóa"}
+                                </span>
+                              )}
+                              {lessonCompleted && !isLocked && (
+                                <span className="text-[10px] px-2 py-0.5 rounded-full bg-green-100 text-green-700 border border-green-200">
+                                  Đã hoàn thành
                                 </span>
                               )}
                             </div>
@@ -639,7 +701,9 @@ const LessonPage = () => {
                         );
                       })
                     ) : (
-                      <li className="text-gray-400 italic">Chưa có bài học</li>
+                      <li className="text-gray-400 italic px-3 py-2">
+                        Chưa có bài học
+                      </li>
                     )}
                   </ul>
                 </details>
@@ -673,8 +737,8 @@ const LessonPage = () => {
           type="primary"
           style={{
             insetInlineEnd: 50,
-            width: 120, // 👈 chỉnh width theo ý bạn
-            height: 40, // 👈 optional, chỉnh chiều cao
+            width: 120,
+            height: 40,
             padding: "0 12px",
           }}
         />

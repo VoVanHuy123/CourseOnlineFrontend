@@ -4,7 +4,7 @@ import { SearchOutlined, BookOutlined, UserOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import useFetchApi from "../../hooks/useFetchApi";
 import { endpoints } from "../../services/api";
-import courseCover from '../../assets/img/course-cover.jpg'
+import courseCover from "../../assets/img/course-cover.jpg";
 
 const { Search } = Input;
 
