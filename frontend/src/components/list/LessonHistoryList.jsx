@@ -7,7 +7,7 @@ import LessonHistoryDetail from "./LessonHistoryDetail";
 
 const LessonHistoryList = () => {
   const { lessonId } = useParams();
-  const {fetchApi} = useFetchApi();
+  const { fetchApi } = useFetchApi();
   const navigate = useNavigate();
   const [historyList, setHistoryList] = useState([]);
   const [history, setHistory] = useState([]);
@@ -18,9 +18,11 @@ const LessonHistoryList = () => {
       setLoading(true);
       try {
         const res = await fetchApi({
-            url : endpoints['lesson_histories']
+          url: endpoints['lesson_histories'](lessonId),
+          // data : {"lesson_id" : lessonId}
         });
         setHistoryList(res.data);
+        console.log("leson_id:", lessonId)
         console.log(res.data)
       } catch (err) {
         console.error(err);
@@ -32,30 +34,33 @@ const LessonHistoryList = () => {
 
   return (
     <Spin spinning={loading}>
-        <div className="flex flex-row w-full justify-between">
+      <div className="flex flex-row w-full justify-between">
 
-        <div className="max-h-96 overflow-y-auto overflow-x-hidden px-6">
-            <List
-                grid={{ gutter: 16, column: 1 }}
-                dataSource={historyList}
-                renderItem={(item) => (
-                <List.Item>
-                    <Card
+        <div className="max-h-96 overflow-y-auto overflow-x-hidden">
+          {historyList.length > 0 ? 
+          <List
+          className="px-6"
+            grid={{ gutter: 16, column: 1 }}
+            dataSource={historyList}
+            renderItem={(item) => (
+              <List.Item>
+                <Card
 
-                    hoverable
-                    onClick={() => setHistory(item)}
-                    title={ `${item.action} lúc #${new Date(item.created_at).toLocaleString()}`}
-                    >
-                    </Card>
-                        </List.Item>
-                )}
-            />
+                  hoverable
+                  onClick={() => setHistory(item)}
+                  title={`${item.action} lúc #${new Date(item.created_at).toLocaleString()}`}
+                >
+                </Card>
+              </List.Item>
+            )}
+          />
+          : <></>}
         </div>
-      
-      <div className="flex-1">
-        <LessonHistoryDetail historyId={history?.id}/>
+
+        <div className="flex-1">
+          <LessonHistoryDetail historyId={history?.id} />
+        </div>
       </div>
-        </div>
     </Spin>
   );
 };

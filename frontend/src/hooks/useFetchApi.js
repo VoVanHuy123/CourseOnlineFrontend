@@ -45,9 +45,9 @@ const useFetchApi = () => {
         //   Authorization: `Bearer ${token || localStorage.getItem("token")}`,
         // }
       };
-      console.log("API Request Config:", config);
+      // console.log("API Request Config:", config);
       const res = await api(config);
-      console.log("API Response:", res);
+      // console.log("API Response:", res);
 
       response.status = res.status;
       response.data = res.data;

@@ -19,9 +19,10 @@ const HeaderLayout = () => {
     }
   };
 
-  const nav = isAuthenticated
+  let nav = isAuthenticated
     ? [
       { label: "Trang chủ", key: "/" },
+      { label: "Khóa học của tôi", key: "/courses/my-courses" },
       { label: "Đăng xuất", key: "logout" },
     ]
     : [
@@ -29,6 +30,8 @@ const HeaderLayout = () => {
       { label: "Đăng nhập", key: "/login" },
       { label: "Đăng ký", key: "/register" },
     ];
+    
+    
 
   return (
     <Header

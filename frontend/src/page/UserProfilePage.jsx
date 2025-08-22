@@ -58,9 +58,9 @@ const UserProfilePage = () => {
 
     // Nếu không có file được chọn và người dùng muốn xóa ảnh
     // if (!selectedFile && values.remove_avatar === true) {
-    if (!selectedFile) {
-      formData.append("null_avatar", "");
-    }
+    // if (!selectedFile) {
+    //   formData.append("null_avatar", "");
+    // }
   for (let [key, value] of formData.entries()) {
   console.log(key, value);
 }
