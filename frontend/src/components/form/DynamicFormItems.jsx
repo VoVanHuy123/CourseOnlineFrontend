@@ -148,6 +148,7 @@ const renderDynamicFormItems = (fields, options = {}) => {
           <Switch
             defaultChecked={field.initialValue}
             disabled={isReadOnly}
+            
           />
         );
         break;

@@ -115,6 +115,23 @@ const ProfileForm = ({
     admin: [], // Có thể thêm nếu cần
   };
 
+  useEffect(()=>{
+    if(profileData){
+      form.setFieldValue({
+        first_name : profileData?.first_name,
+        username : profileData?.username,
+        last_name : profileData?.last_name,
+        phonenumber : profileData?.phonenumber,
+        email : profileData?.email,
+        student_code : profileData?.student_code,
+        university : profileData?.university,
+        gender : profileData?.gender,
+        current_workplace : profileData?.current_workplace,
+        degree : profileData?.degree,
+      })
+    }
+  },[profileData])
+
   const renderField = (field) => {
     const { name, label, rules, type, options } = field;
     if (type === "select") {

@@ -29,7 +29,10 @@ const UpdateCoure = () => {
           url: `/courses/${id}`, // API lấy khóa học
         });
   
-        if (res.status === 200) setCourse(res.data);
+        if (res.status === 200) {
+          setCourse(res.data);
+          console.log(res.data)
+        }
       } catch (err) {
         message.error("Lỗi khi tải dữ liệu");
       } finally {
@@ -44,10 +47,10 @@ const UpdateCoure = () => {
     }else {
       formData.append("null_image", "");
     }
-    // if (values.image?.length && values.image[0]?.originFileObj ==0) {
-    //   console.log("vào")
-    //   formData.append("null_image", null);
-    // }
+    if (values.image?.length && values.image[0]?.originFileObj ==0) {
+      console.log("vào")
+      formData.append("null_image", null);
+    }
 
     Object.keys(values).forEach((key) => {
       if (key !== "image") {
@@ -71,7 +74,6 @@ for (let [key, value] of formData.entries()) {
       await messageApi.open({
         type: "loading",
         content: "Đang cập nhật khóa học...",
-        duration: 3,
 
       });
 

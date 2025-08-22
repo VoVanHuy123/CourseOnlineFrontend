@@ -52,6 +52,15 @@ const UpdateCourseForm = ({form,errorMsg,onFinish,course})=>{
          ...(course && { initialValue: course.price || null }),
     },
     { 
+        name: "is_sequential", 
+        label: "Tuẩn tự", 
+        type: "switch", 
+        placeholder: "...", 
+        rules: [{ 
+            required: false, 
+        }],
+    },
+    { 
         name: "is_public", 
         label: "Phát hành", 
         type: "switch", 
@@ -59,10 +68,24 @@ const UpdateCourseForm = ({form,errorMsg,onFinish,course})=>{
         rules: [{ 
             required: false,
         }],
-        //  ...(course && { initialValue: course.price || null }),
     },
      ];
 
+    // console.log(course.is_sequential)
+     useEffect(()=>{
+      if(course){
+
+        form.setFieldsValue({
+          title:course?.title,
+          is_sequential: course?.is_sequential,
+          description: course?.description,
+          image: course?.image,
+          price: course?.price,
+          is_public: course?.is_public
+        })
+        console.log("is_sequential: ",course)
+      }
+     },[course])
     const loadCategories = async () => {
         try {
           const res = await fetchApi({ method: "GET", url: endpoints["categories"] });
@@ -89,6 +112,7 @@ const UpdateCourseForm = ({form,errorMsg,onFinish,course})=>{
       ];
     useEffect(() => {
         loadCategories();
+        
       }, []);
     return(
         <>
@@ -103,6 +127,10 @@ const UpdateCourseForm = ({form,errorMsg,onFinish,course})=>{
                     layout="vertical"
                     onFinish={onFinish}
                     // initialValues={{ is_public: true }}
+                    initialValues={{
+                        is_sequential: false,
+                        is_public: false,
+                      }}
                   >
                     {renderDynamicFormItems(fields)}
             

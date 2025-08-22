@@ -12,6 +12,7 @@ import PaymentReturnPage from "./page/payment/PaymentReturnPage";
 import TeacherStatsPage from "./page/teacher/TeacherStatsPage";
 import UserProfilePage from "./page/UserProfilePage";
 import LessonHistoryList from "./components/list/LessonHistoryList";
+import MyCoursePage from "./page/student/MyCoursePage";
 
 const AppRoutes = () => (
   <Routes>
@@ -39,6 +40,14 @@ const AppRoutes = () => (
       element={
         <PrivateRoute allowedRoles={["teacher"]}>
           <CreateChapTerLesson />
+        </PrivateRoute>
+      }
+    />
+    <Route
+      path="/courses/my-courses"
+      element={
+        <PrivateRoute allowedRoles={["student"]}>
+          <MyCoursePage />
         </PrivateRoute>
       }
     />

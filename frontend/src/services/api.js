@@ -48,8 +48,9 @@ export const endpoints = {
   get_student: (student_id) => `/auth/students/${student_id}`,
   // "get_admin":(admin_id)=>`/auth/admins/${admin_id}`,
   auth: "/auth",
-  lesson_histories: `/courses/lesson-histories`,
+  lesson_histories:(id) => `/courses/lesson-histories/${id}`,
   lesson_history: (id) => `/courses/lesson-history/${id}`,
+  my_course:(id) => `/courses/my-course/${id}`
 };
 // export const authApis = (token) => {
 //     return axios.create({
