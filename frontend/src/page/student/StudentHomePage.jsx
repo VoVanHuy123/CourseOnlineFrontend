@@ -45,6 +45,7 @@ const StudentHomePage = () => {
 
   const [allCourses, setAllCourses] = useState([]);
   const [filteredCourses, setFilteredCourses] = useState([]);
+  const [teacherByCourseId, setTeacherByCourseId] = useState({});
 
   const fetchAllCourses = async () => {
     setLoadingCourses(true);
@@ -55,8 +56,40 @@ const StudentHomePage = () => {
         method: "GET",
       });
       const coursesData = res.data.data || res.data;
+      console.log("[StudentHome] coursesData:", coursesData);
       setAllCourses(coursesData);
       setFilteredCourses(coursesData);
+
+      // Nạp thông tin giảng viên cho từng khóa (không phụ thuộc teacher_id)
+      try {
+        const courseIds = (coursesData || []).map((c) => c?.id).filter(Boolean);
+        console.log("[StudentHome] courseIds:", courseIds);
+
+        const primary = await Promise.all(
+          courseIds.map((id) =>
+            fetchApi({
+              url: endpoints.course_teacher(id),
+              method: "GET",
+            }).catch((err) => ({ __error: err, __courseId: id }))
+          )
+        );
+        const map = {};
+        primary.forEach((r, idx) => {
+          if (r && r.data) {
+            map[courseIds[idx]] = r.data;
+          } else if (r && r.__error) {
+            console.warn(
+              "[StudentHome] course_teacher failed:",
+              r.__courseId,
+              r.__error
+            );
+          }
+        });
+        console.log("[StudentHome] final teacherByCourseId:", map);
+        setTeacherByCourseId(map);
+      } catch (e) {
+        console.warn("[StudentHome] teacher fetch block error:", e);
+      }
     } catch (err) {
       setError(err.message || "Đã xảy ra lỗi khi tải khóa học.");
       console.error(err);
@@ -175,6 +208,22 @@ const StudentHomePage = () => {
                     <p className="text-gray-500 text-sm mt-1 line-clamp-2">
                       {course.description}
                     </p>
+                    <div className="text-xs text-gray-500 mt-2">
+                      Giảng viên:{" "}
+                      {(() => {
+                        const teacher =
+                          course?.teacher || teacherByCourseId[course?.id];
+                        console.log(
+                          `[StudentHome] Course ${course.id} teacher:`,
+                          teacher
+                        );
+                        return teacher
+                          ? `${teacher.first_name || ""} ${
+                              teacher.last_name || ""
+                            }`.trim()
+                          : "";
+                      })()}
+                    </div>
                   </div>
                 </div>
               ))
@@ -210,6 +259,22 @@ const StudentHomePage = () => {
                     <p className="text-gray-500 text-sm mt-1 line-clamp-2">
                       {course.description}
                     </p>
+                    <div className="text-xs text-gray-500 mt-2">
+                      Giảng viên:{" "}
+                      {(() => {
+                        const teacher =
+                          course?.teacher || teacherByCourseId[course?.id];
+                        console.log(
+                          `[StudentHome] Course ${course.id} teacher:`,
+                          teacher
+                        );
+                        return teacher
+                          ? `${teacher.first_name || ""} ${
+                              teacher.last_name || ""
+                            }`.trim()
+                          : "";
+                      })()}
+                    </div>
                   </div>
                 </div>
               ))
