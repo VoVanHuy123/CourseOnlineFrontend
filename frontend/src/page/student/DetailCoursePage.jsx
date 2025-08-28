@@ -18,6 +18,7 @@ const DetailCoursePage = () => {
   const [enrolling, setEnrolling] = useState(false);
   const [enrollmentStatus, setEnrollmentStatus] = useState(null);
   const navigate = useNavigate();
+  const [teacher, setTeacher] = useState(null);
 
   useEffect(() => {
     const fetchCourse = async () => {
@@ -34,6 +35,19 @@ const DetailCoursePage = () => {
           method: "GET",
         });
         setChapters(resChapters.data);
+
+        // Load teacher profile if available
+        try {
+          if (res.data?.teacher_id) {
+            const resTeacher = await fetchApi({
+              url: endpoints.get_teacher(res.data.teacher_id),
+              method: "GET",
+            });
+            setTeacher(resTeacher.data);
+          }
+        } catch (e) {
+          setTeacher(null);
+        }
 
         // Lấy tiến trình khóa học
         try {
@@ -73,14 +87,19 @@ const DetailCoursePage = () => {
         });
         message.success("Đăng ký khóa học thành công!");
 
-        // Reload trang để cập nhật trạng thái
-        window.location.reload();
-
         setEnrollmentStatus({
           ...(enrollmentStatus || {}),
           is_enrolled: true,
           payment_status: true,
         });
+
+        try {
+          const resProgress = await fetchApi({
+            url: endpoints.course_progress(id),
+            method: "GET",
+          });
+          setCourseProgress(resProgress.data);
+        } catch {}
       } catch (err) {
         message.error(
           "Đăng ký khóa học thất bại: " +
@@ -128,8 +147,11 @@ const DetailCoursePage = () => {
         } else {
           message.success("Đăng ký khóa học thành công!");
           setShowPaymentModal(false);
-          // Reload trang để cập nhật trạng thái
-          window.location.reload();
+          setEnrollmentStatus({
+            ...(enrollmentStatus || {}),
+            is_enrolled: true,
+            payment_status: true,
+          });
         }
       }
     } catch (err) {
@@ -152,6 +174,7 @@ const DetailCoursePage = () => {
         <div className="flex items-center justify-between px-6 py-3 bg-blue-50 rounded-t-xl border-b">
           <div className="flex items-center gap-4">
             <button
+              type="button"
               onClick={() => navigate("/")}
               className="flex items-center gap-2 px-3 py-1 rounded border border-gray-300 bg-white text-gray-700 hover:bg-gray-100 transition"
             >
@@ -413,6 +436,52 @@ const DetailCoursePage = () => {
 
           {/* Bên phải: Ảnh, giá/miễn phí, tên, nút đăng ký */}
           <div className="w-full md:w-80 flex flex-col items-center">
+            {teacher && (
+              <div className="bg-white rounded-xl shadow p-6 w-full mb-6">
+                <h4 className="font-semibold mb-4">Giảng viên</h4>
+                <div className="flex items-center gap-4">
+                  <img
+                    src={
+                      teacher.avatar ||
+                      "https://ui-avatars.com/api/?name=" +
+                        encodeURIComponent(
+                          `${teacher.first_name || ""} ${
+                            teacher.last_name || ""
+                          }`
+                        )
+                    }
+                    alt={
+                      (teacher.first_name || "") +
+                      " " +
+                      (teacher.last_name || "")
+                    }
+                    className="w-14 h-14 rounded-full object-cover border"
+                  />
+                  <div>
+                    <div className="font-semibold">
+                      {(teacher.first_name || "") +
+                        " " +
+                        (teacher.last_name || "")}
+                    </div>
+                    {teacher.email && (
+                      <div className="text-sm text-gray-500">
+                        {teacher.email}
+                      </div>
+                    )}
+                    {teacher.current_workplace && (
+                      <div className="text-sm text-gray-500">
+                        {teacher.current_workplace}
+                      </div>
+                    )}
+                    {teacher.degree && (
+                      <div className="text-sm text-gray-500">
+                        {teacher.degree}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
             <div className="bg-gray-100 rounded-xl flex items-center justify-center w-full h-48 mb-6">
               <img
                 src={course.image || courseCover}
@@ -437,7 +506,10 @@ const DetailCoursePage = () => {
                 enrollmentStatus.is_enrolled ? (
                   enrollmentStatus.payment_status ? (
                     <button
-                      onClick={() => {
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
                         // Tìm bài học đầu tiên
                         let firstLessonId = null;
                         if (chapters && chapters.length > 0) {
@@ -464,7 +536,12 @@ const DetailCoursePage = () => {
                         Chờ thanh toán
                       </div>
                       <button
-                        onClick={handleEnrollCourse}
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handleEnrollCourse();
+                        }}
                         className="bg-orange-500 text-white px-6 py-2 rounded font-semibold hover:bg-orange-600 transition"
                       >
                         Thanh toán
@@ -473,7 +550,12 @@ const DetailCoursePage = () => {
                   )
                 ) : (
                   <button
-                    onClick={handleEnrollCourse}
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handleEnrollCourse();
+                    }}
                     className="bg-blue-500 text-white px-6 py-2 rounded font-semibold hover:bg-blue-600 transition"
                   >
                     Đăng ký
@@ -481,7 +563,12 @@ const DetailCoursePage = () => {
                 )
               ) : (
                 <button
-                  onClick={handleEnrollCourse}
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleEnrollCourse();
+                  }}
                   className="bg-blue-500 text-white px-6 py-2 rounded font-semibold hover:bg-blue-600 transition"
                 >
                   Đăng ký

@@ -15,6 +15,7 @@ const SearchBar = ({
 }) => {
   const [searchValue, setSearchValue] = useState("");
   const [searchResults, setSearchResults] = useState([]);
+  const [teacherByCourseId, setTeacherByCourseId] = useState({});
   const [loading, setLoading] = useState(false);
   const [showResults, setShowResults] = useState(false);
   const { fetchApi } = useFetchApi();
@@ -67,6 +68,25 @@ const SearchBar = ({
 
       setSearchResults(res.data || []);
       setShowResults(true);
+
+      // Nạp thông tin giáo viên cho các kết quả để gợi ý hiển thị giáo viên
+      const courses = res.data || [];
+      const ids = courses.map((c) => c?.id).filter(Boolean);
+      try {
+        const responses = await Promise.all(
+          ids.map((id) =>
+            fetchApi({
+              url: endpoints.course_teacher(id),
+              method: "GET",
+            }).catch(() => null)
+          )
+        );
+        const map = {};
+        responses.forEach((r, idx) => {
+          if (r && r.data) map[ids[idx]] = r.data;
+        });
+        setTeacherByCourseId(map);
+      } catch {}
     } catch (err) {
       console.error("Search error:", err);
       setSearchResults([]);
@@ -168,12 +188,41 @@ const SearchBar = ({
                 >
                   <List.Item.Meta
                     avatar={
-                      <Avatar
-                        size={48}
-                        src={course.image || courseCover}
-                        shape="square"
-                        style={{ borderRadius: "6px" }}
-                      />
+                      <div style={{ width: 72 }}>
+                        <Avatar
+                          size={72}
+                          src={course.image || courseCover}
+                          shape="square"
+                          style={{ borderRadius: "6px" }}
+                        />
+                        {(() => {
+                          const t =
+                            course.teacher || teacherByCourseId[course.id];
+                          if (!t) return null;
+                          return (
+                            <div
+                              style={{
+                                marginTop: 6,
+                                fontSize: 12,
+                                color: "#666",
+                                lineHeight: 1.2,
+                                textAlign: "center",
+                                whiteSpace: "nowrap",
+                                overflow: "hidden",
+                                textOverflow: "ellipsis",
+                              }}
+                              title={`${t.first_name || ""} ${
+                                t.last_name || ""
+                              }`.trim()}
+                            >
+                              <UserOutlined />{" "}
+                              {`${t.first_name || ""} ${
+                                t.last_name || ""
+                              }`.trim()}
+                            </div>
+                          );
+                        })()}
+                      </div>
                     }
                     title={
                       <div style={{ fontWeight: "600", color: "#1890ff" }}>
@@ -198,12 +247,6 @@ const SearchBar = ({
                               ? "Miễn phí"
                               : `${course.price?.toLocaleString()} VNĐ`}
                           </span>
-                          {course.teacher && (
-                            <span style={{ color: "#666", fontSize: "12px" }}>
-                              <UserOutlined /> {course.teacher.first_name}{" "}
-                              {course.teacher.last_name}
-                            </span>
-                          )}
                         </div>
                       </div>
                     }
