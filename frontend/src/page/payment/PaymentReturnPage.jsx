@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { Result, Button, Spin, Card, Descriptions } from "antd";
+import { Result, Button, Spin, Card, Descriptions, message } from "antd";
 import { CheckCircleOutlined, CloseCircleOutlined, LoadingOutlined } from "@ant-design/icons";
 import { endpoints } from "../../services/api";
 import useFetchApi from "../../hooks/useFetchApi";
@@ -12,6 +12,7 @@ const PaymentReturnPage = () => {
   const [paymentResult, setPaymentResult] = useState(null);
   const [paymentInfo, setPaymentInfo] = useState({});
   const [courseId, setCourseId] = useState(null);
+  const [chapters, setChapters] = useState([]);
   const { fetchApi } = useFetchApi();
 
   useEffect(() => {
@@ -100,6 +101,24 @@ const PaymentReturnPage = () => {
     processPaymentReturn();
   }, [searchParams]);
 
+  // Fetch chapters similar to DetailCoursePage once courseId is available
+  useEffect(() => {
+    const fetchChapters = async () => {
+      if (!courseId) return;
+      try {
+        const resChapters = await fetchApi({
+          url: endpoints["course-chapters"](courseId),
+          method: "GET",
+        });
+        setChapters(resChapters.data || []);
+      } catch (err) {
+        // Silent fail; button will still navigate to course page fallback
+        setChapters([]);
+      }
+    };
+    fetchChapters();
+  }, [courseId, fetchApi]);
+
   const getVNPayMessage = (responseCode) => {
     const messages = {
       "00": "Giao dịch thành công",
@@ -144,10 +163,20 @@ const PaymentReturnPage = () => {
   };
 
   const handleBackToCourse = () => {
-    if (courseId) {
-      navigate(`/courses/${courseId}/lessons`);
+    // Tìm bài học đầu tiên
+    let firstLessonId = null;
+    if (chapters && chapters.length > 0) {
+      for (const chapter of chapters) {
+        if (chapter.lessons && chapter.lessons.length > 0) {
+          firstLessonId = chapter.lessons[0].id;
+          break;
+        }
+      }
+    }
+    if (firstLessonId) {
+      navigate(`/courses/${courseId}/lessons/${firstLessonId}`);
     } else {
-      navigate("/");
+      message.info("Khóa học chưa có bài học nào.");
     }
   };
 
