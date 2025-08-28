@@ -7,8 +7,10 @@ export const endpoints = {
   register: "/auth/register",
   categories: "/courses/categories",
   courses: "/courses",
-  search_courses: (query) => `/courses/search?query=${encodeURIComponent(query)}`,
+  search_courses: (query) =>
+    `/courses/search?query=${encodeURIComponent(query)}`,
   "course-chapters": (id) => `/courses/${id}/chapters`,
+  course_teacher: (id) => `/courses/${id}/teacher`,
   course_teacher_not_public: (id) => `/courses/teacher/${id}/not-public`,
   course_teacher_public: (id) => `/courses/teacher/${id}/public`,
   chapters: `/courses/chapters`,
@@ -48,9 +50,9 @@ export const endpoints = {
   get_student: (student_id) => `/auth/students/${student_id}`,
   // "get_admin":(admin_id)=>`/auth/admins/${admin_id}`,
   auth: "/auth",
-  lesson_histories:(id) => `/courses/lesson-histories/${id}`,
+  lesson_histories: (id) => `/courses/lesson-histories/${id}`,
   lesson_history: (id) => `/courses/lesson-history/${id}`,
-  my_course:(id) => `/courses/my-course/${id}`
+  my_course: (id) => `/courses/my-course/${id}`,
 };
 // export const authApis = (token) => {
 //     return axios.create({
